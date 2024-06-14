@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <form action="/login" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
+    <footer class="text-center">
+        <h2>Start counting your calories!</h2>
+        <br>
+        <h3>Why count calories?</h3>
+        <div class="why-count">
+            <p style="display:flex;  justify-content: center; "></p>
+            <p style="display:flex;  justify-content: center; "></p>
+            <p style="display:flex;  justify-content: center; "></p>
+        </div>
+        <div class="container text-center">
+            <div class="row">
+              <div class="col">
+                By increasing your awareness of what you consume on a daily basis, calorie counting can aid in weight loss.              </div>
+              <div class="col">
+                This might assist you in identifying eating habits that you might need to change in order to stay on track to accomplish your goals.              </div>
+              <div class="col">
+                Or even if you don't want to lose weight but instead gain weight, it's still important to count calories in a healthy way and not overdo it.              </div>
+            </div>
+        </div>
+
+
+    </footer>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+
+    <form action="/register" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password" required>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="confirm_password" name="confirm_password" placeholder="Confirm Password" type="password" required>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Register</button>
+        </div>
+
+    </form>
+
+    <!--let user confirm  their password or retype it-->
+    <script>
+        const password = document.getElementById('password');
+        const confirm_password = document.getElementById('confirm_password');
+
+        function validatePassword() {
+            if (password.value !== confirm_password.value) {
+                confirm_password.setCustomValidity("Passwords Don't match");
+            } else {
+                confirm_password.setCustomValidity('');
+            }
+        }
+
+        function validateStrongPassword() {
+            const passwordValue = password.value;
+            if (passwordValue.length < 8) {
+                password.setCustomValidity("Password must be at least 8 characters");
+            } else {
+                password.setCustomValidity('');
+            }
+            validatePassword(); // Also validate password confirmation
+        }
+
+        password.oninput = validateStrongPassword;
+        confirm_password.onkeyup = validatePassword;
+    </script>
+{% endblock %}

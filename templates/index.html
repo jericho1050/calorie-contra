@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Query for food
+{% endblock %}
+
+{% block main %}
+    <form id="food-form" action="/" method="post">
+        <input autocomplete="off" autofocus name="q" placeholder="Search for food" class="form-control margin" type="text">
+        <button type="submit" class="btn btn-block btn-primary"><i class="fas fa-search"></i></button>
+    </form>
+    <footer class="mb-5 small text-center text-muted">
+        Database source: <a href="https://www.usda.gov/">USDA</a>
+        <h6>Please be aware of the branded data type. e.g., BANANA or EGG might correspond to a branded food product. (They are in capital letters.)
+        </h6>
+    </footer>
+    <div class="loader">
+        <div class="spinner-border text-success" style="width: 5rem; height: 5rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById("food-form");
+        const loader = document.querySelector(".loader");
+
+        // Hide the loader initially
+        loader.style.display = "none";
+
+        // Add an event listener to the form for form submission
+        form.addEventListener("submit", () => {
+            // Show the loader when the form is submitted
+            loader.style.display = "block";
+        });
+    </script>
+
+{% endblock %}

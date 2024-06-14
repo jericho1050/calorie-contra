@@ -1,0 +1,275 @@
+/* color for navbar */
+
+navcolor {
+    background-color: #e3f2fd;
+}
+
+/* size logo */
+.size-logo {
+    width: 69px;
+    height: 69px;
+}
+
+.margin {
+    display: inline;
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    height: 36px;
+}
+
+.btn-primary {
+    display: inline;
+    /* height:36px;
+    width: 7%;
+    margin-left: -5px;
+    margin-top: -3px; */
+}
+
+hr {
+    width: 69%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.popover {
+    position: relative;
+    display: inline-block;
+    width: 169px;
+    padding: 15px;
+}
+
+.popover-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 250px;
+    z-index: 2;
+}
+
+.popover:hover .popover-content {
+    display: inline;
+    margin-left: 20px;
+}
+
+
+h1, h2 {
+    text-align: center;
+}
+
+footer {
+    margin-top: 69px;
+    color: green;
+    flex-shrink: 0;
+}
+
+margin-footer {
+    margin: 69px 0;
+}
+
+p {
+    margin-bottom: 5px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.list-group {
+    width: 50%;
+    margin: auto;
+}
+
+.list-group hr {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.list-group h5, h4 {
+    color: green;
+}
+
+.right {
+    text-align: right;
+}
+
+.container.index {
+    display: flex;
+    justify-content: center;
+}
+
+
+.gmail-logo {
+    margin-left: -3px;
+    margin-top: -3px;
+    width: 15px;
+    height: 15px;
+}
+
+h6 {
+    font-size: 9px;
+}
+
+footer h5 {
+    margin-top: 40vh;
+}
+
+h2 {
+    font-family: "Arial Rounded MT", sans-serif;
+    font-weight: bold;
+}
+
+.text-center h3 {
+    font-family: Chalkboard, cursive;
+}
+
+body::before {
+    content: "";
+    background-image: url('/static/background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+body {
+    position: relative;
+    z-index: 1;
+}
+
+.loader {
+    transition: opacity 0.75s, visiblity 0.75s;
+}
+
+.loader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.branded {
+    color: green;
+    font-size: 34px;
+    font-family: "Comic Sans MS";
+}
+
+.why-count p {
+    font-size: 12px;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.label {
+  border: 2px solid black;
+  width: 300px;
+  margin: 20px auto;
+  padding: 0 7px;
+}
+
+header h1 {
+  text-align: center;
+  margin: -4px 0;
+  letter-spacing: 0.15px
+}
+
+p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.divider {
+  border-bottom: 1px solid #888989;
+  margin: 2px 0;
+}
+
+.bold {
+  font-weight: 800;
+}
+
+.large {
+  height: 10px;
+}
+
+.large, .medium {
+  background-color: black;
+  border: 0;
+}
+
+.medium {
+  height: 5px;
+}
+
+.small-text {
+  font-size: 0.85rem;
+}
+
+
+.calories-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.calories-info h2 {
+  margin: 0;
+}
+
+.left-container p {
+  margin: -5px -2px;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+.calories-info span {
+  margin: -7px -2px;
+  font-size: 2.4em;
+  font-weight: 700;
+}
+
+.right {
+  justify-content: flex-end;
+}
+
+.indent {
+  margin-left: 1em;
+}
+
+.double-indent {
+  margin-left: 2em;
+}
+
+.daily-value p:not(.no-divider) {
+  border-bottom: 1px solid #888989;
+}
+
+.note {
+  font-size: 0.6rem;
+  margin: 5px 0;
+  padding: 0 8px;
+  padding-right: 8px;
+  text-indent: -8px;
+}
+
+b {
+  white-space: pre-wrap;
+}
+

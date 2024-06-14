@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+ Calorie Log
+{% endblock %}
+
+{% block main %}
+    <!-- Display the graph using an img element -->
+    <img src="data:image/png;base64,{{ graph_url }}" alt="Calorie Intake Graph">
+
+{% endblock %}

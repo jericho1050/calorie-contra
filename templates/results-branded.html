@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Results (Branded)
+{% endblock %}
+
+{% block main %}
+
+<br><br>
+<h4>Results for "{{ query }} (BRANDED)"</h4>
+{% if results %}
+<div class="list-group" id="results-list">
+    {% for result in results %}
+    <form action="/details" method="post">
+        <input type="hidden" name="food_name" value="{{ result.food_name }}">
+        <button type="submit" class="list-group-item list-group-item-action">
+            <h5 class="mb-1 text-center">{{ result.food_name }}</h5>
+            <p>Calories: {{ result.calories }} KCAL</p>
+            <p>Protein: {{ result.protein }} g</p>
+            <p>Fat: {{ result.fat }} g</p>
+            <p>Carbs: {{ result.carbs }} g</p>
+        </button>
+    </form>
+    <hr>
+    {% endfor %}
+</div>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('results_branded', q=query, page=page-1) }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo; Previous</span>
+                </a>
+            </li>
+        {% endif %}
+        {% for p in range(page-2, page+3) %}
+        {% if p > 0 and p <= total_pages %}
+
+            <li class="page-item{% if p == page %} active{% endif %}">
+                <a class="page-link" href="{{ url_for('results_branded', q=query, page=p) }}">{{ p }}</a>
+            </li>
+        {% endif %}
+        {% endfor %}
+        {% if page < total_pages %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('results_branded', q=query, page=page+1) }}" aria-label="Next">
+                    <span aria-hidden="true">Next &raquo;</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

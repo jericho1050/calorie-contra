@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block title %}
+ Nutrition Facts
+{% endblock %}
+
+{% block main %}
+
+<h2 class="text-center">{{ result.name }}</h2>
+<div class="label">
+  <header>
+    <h1 class="bold">Nutrition Facts</h1>
+    <div class="divider"></div>
+    <p class="bold">Serving size <span>100g</span></p>
+  </header>
+  <div class="divider large"></div>
+  <div class="calories-info">
+    <div class="left-container">
+      <h2 class="bold small-text">Amount per serving</h2>
+      <p>Calories</p>
+    </div>
+    <span id="Energy-value">{{ nutrient.Energy.value|int }}</span>
+  </div>
+  <div class="divider medium"></div>
+  <div class="daily-value small-text">
+    <p class="bold right no-divider">% Daily Value *</p>
+    <div class="divider"></div>
+    <p><span><span class="bold">Total Fat</span> <span id="Total lipid (fat)-value">{{ nutrient['Total lipid (fat)'].value }}</span>g</span> <span class="bold" id="Total lipid (fat)-percentage">{{ ((nutrient['Total lipid (fat)'].value / daily_values['Total lipid (fat)']) * 100) | round(2) }}%</span></p>
+    <p class="indent no-divider">Saturated Fat {{nutrient['Fatty acids, total saturated'].value }}g<span class="bold" id="Fatty acids, total saturated-percentage">{{ ((nutrient['Fatty acids, total saturated'].value / daily_values['Fatty acids, total saturated']) * 100) | round(2) }}%</span></p>
+    <div class="divider"></div>
+    {% if nutrient['Fatty acids, total trans'] %}
+    <p class="indent no-divider"><span><i>Trans</i> <span id="Fatty acids, total trans-value">{{ nutrient['Fatty acids, total trans'].value }}g</span></span></p>
+    {% else %}
+    <p class="indent no-divider"><span><i>Trans</i> Fat 0g</span></p>
+    {% endif %}
+    <div class="divider"></div>
+    <p><span><span class="bold">Cholesterol</span><span id="Cholesterol-value"> {{ nutrient['Cholesterol'].value }}</span>{{ nutrient['Cholesterol'].unit }}</span> <span class="bold" id="Cholesterol-percentage">{{ ((nutrient['Cholesterol'].value / daily_values['Cholesterol']) * 100) | round(2) }}%</span></p>
+    <p><span><span class="bold">Sodium</span> <span id="Sodium, Na-value">{{ nutrient['Sodium, Na'].value }}</span>{{ nutrient['Sodium, Na'].unit }}</span> <span class="bold" id="Sodium, Na-percentage">{{ ((nutrient['Sodium, Na'].value / daily_values['Sodium, Na']) * 100) | round(2) }}%</span></p>
+    <p><span><span class="bold">Total Carbohydrate</span> <span id="Carbohydrate, by difference-value">{{ nutrient['Carbohydrate, by difference'].value }}{{ nutrient['Carbohydrate, by difference'].unit }}</span></span> <span class="bold" id="Carbohydrate, by difference-percentage">{{ ((nutrient['Carbohydrate, by difference'].value / daily_values['Carbohydrate, by difference']) * 100) | round(2) }}%</span></p>
+    <p class="indent no-divider">Dietary Fiber {{ nutrient['Fiber, total dietary'].value }}g</p>
+    <div class="divider"></div>
+    {% if nutrient['Total Sugars'] %}
+    <p class="indent no-divider">Total Sugars <span id="Total Sugars-value">{{ nutrient['Total Sugars'].value}}</span>g</p>
+    {% elif nutrient['Sugars, total including NLEA'] %}
+    <p class="indent no-divider">Total Sugars <span id="Sugars, total including NLEA-value">{{ nutrient['Sugars, total including NLEA'].value}}{{ nutrient['Sugars, total including NLEA'].unit }}</span></p>
+    {% else %}
+    <p class="indent no-divider">Total Sugars 0g</p>
+    {% endif %}
+    <div class="divider"></div>
+    <p class="no-divider"><span class="bold">Protein</span> <span id="Protein-value">{{ nutrient['Protein'].value }}g</span></p>
+    <div class="divider large"></div>
+    {% for micro, value in nutrient.items() %}
+    {% if "Vitamin" in micro and micro in daily_values %}
+      <p>{{ micro }} {{ value.value }}{{ value.unit }}<span id="{{ micro }}-percentage">{{ ((value.value / daily_values[micro]) * 100) | round(2) }}%</span></p>
+      {% endif %}
+    {% endfor %}
+    <p>Calcium {{ nutrient['Calcium, Ca'].value }}{{ nutrient['Calcium, Ca'].unit }}<span id="Calcium, Ca-percentage">{{ ((nutrient['Calcium, Ca'].value / daily_values['Calcium, Ca']) * 100) | round(2) }}%</span></span></p>
+    <p>Iron {{ nutrient['Iron, Fe'].value }}{{nutrient['Iron, Fe'].unit }}<span id="Iron, Fe-percentage">{{ ((nutrient['Iron, Fe'].value / daily_values['Iron, Fe']) * 100) | round(2) }}%</span></span></p>
+    {% if nutrient['Potassium'] %}
+    <p>Iron {{ nutrient['Potassium, K'].value }}{{ nutrient['Potassium, K'].unit }}<span id="Potassium, K-percentage">{{ ((nutrient['Potassium, K'].value / daily_values['Potassium, K']) * 100) | round(2) }}%</span></span></p>
+    {% endif %}
+  </div>
+  <div class="divider medium"></div>
+  <p class="note">* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily
+    diet. 2,000 calories a day is used for general nutrition advice.</p>
+</div>
+    <br>
+    <form class="form-inline" action="/food-log" method="post">
+        <input type="hidden" name="food" value="{{ result.name }}">
+        <input id="serving-size-input" name="calories" placeholder="Serving Size" type="number" value="100" min="1" oninput="updateNutrientsValue()">        {% for nutrient in result.nutrients %}
+            <input type="hidden" name="{{ nutrient.name }}" value="{{ nutrient.value }}">
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Add to log</button>
+    </form>
+    <footer>
+      <small>
+Note: Some nutrient's value won't be updated. We only emphasize the calories, protein, fat, and carbs in our log.
+        </small>
+    </footer>
+    <script>
+      // Assuming originalNutrients and originalDailyValues are available
+      var originalNutrients = {{ nutrient | tojson }};
+      var originalDailyValues = {{ daily_values | tojson }};
+    
+      function updateNutrientsValue() {
+        // Get the serving size from the input field
+        var servingSize = document.getElementById('serving-size-input').value;
+
+        // Create a copy of the original nutrients object
+        var currentNutrients = JSON.parse(JSON.stringify(originalNutrients));
+
+        // Calculate the new nutrient values and daily value percentages
+        for (var nutrient in currentNutrients) {
+          var originalValue = originalNutrients[nutrient].value;
+          var newValue = originalValue * servingSize / 100;
+          currentNutrients[nutrient].value = newValue;
+
+          // Update the nutrient value in the label
+          var nutrientElement = document.getElementById(nutrient + '-value');
+          if (nutrientElement) {
+            nutrientElement.textContent = newValue.toFixed(2);
+          }
+
+          // Calculate and update the daily value percentage
+          var dailyValue = originalDailyValues[nutrient];
+          var newPercentage = newValue / dailyValue * 100;
+          var percentageElement = document.getElementById(nutrient + '-percentage');
+          if (percentageElement) {
+            percentageElement.textContent = newPercentage.toFixed(2) + '%';
+          }
+
+          // Update the value of the hidden input for this nutrient
+          var inputElement = document.querySelector('input[name="' + nutrient + '"]');
+          if (inputElement) {
+            inputElement.value = newValue;
+          }
+        }
+      }
+    </script>
+
+
+
+{% endblock %}
