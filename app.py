@@ -1,4 +1,5 @@
 import os
+from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from flask_caching import Cache
 from flask_session import Session
@@ -14,18 +15,20 @@ from helpers import (
     is_float,
     search_food_branded,
     get_nutritional_info_branded,
+    daily_values,
 )
 import matplotlib
-from dotenv import load_dotenv
 
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import base64
 from io import BytesIO
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+from sqlalchemy.orm import scoped_session
+from sqlalchemy import select, insert, func
+from sqlalchemy.exc import NoResultFound, IntegrityError
+from database import setup_database, SessionLocal, User, FoodCount
 
 load_dotenv()
 
@@ -39,38 +42,11 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure SQLAlchemy
-DATABASE_URL = "sqlite:///user.db"
-engine = create_engine(DATABASE_URL)
-Base = declarative_base()
+# Set up the database
+setup_database()
 
-
-# Define the User and FoodCount models
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True, nullable=False)
-    hash = Column(String, nullable=False)
-
-
-class FoodCount(Base):
-    __tablename__ = "food_count"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, nullable=False)
-    food_name = Column(String, nullable=False)
-    calories = Column(Float, nullable=False)
-    protein = Column(Float, nullable=False)
-    carbs = Column(Float, nullable=False)
-    fat = Column(Float, nullable=False)
-    month = Column(Integer, nullable=False)
-    day = Column(Integer, nullable=False)
-    year = Column(Integer, nullable=False)
-    hour = Column(Integer, nullable=False)
-    minute = Column(Integer, nullable=False)
-
-
-Base.metadata.create_all(engine)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Create a scoped session for database operations
+db_session = scoped_session(SessionLocal)
 
 # gets the current date/time
 current_date = datetime.now()
@@ -234,24 +210,25 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        db_session = SessionLocal()
-        rows = (
-            db_session.query(User)
-            .filter(User.username == request.form.get("username"))
-            .all()
-        )
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(
-            rows[0].hash, request.form.get("password")
-        ):
+        try:
+            stmt = select(User).where(User.username == username)
+            user = db_session.execute(stmt).scalar_one()
+
+            # Ensure username exists and password is correct
+            if not check_password_hash(user.hashed_password, password):
+                return apology("invalid username and/or password", 403)
+
+            # Remember which user has logged in
+            session["user_id"] = user.id
+
+            # Redirect user to home page
+            return redirect("/")
+
+        except NoResultFound:
             return apology("invalid username and/or password", 403)
-
-        # Remember which user has logged in
-        session["user_id"] = rows[0].id
-
-        # Redirect user to home page
-        return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -285,29 +262,31 @@ def register():
         elif len(password) < 8 or len(confirm_pass) < 8:
             return apology("Password must be at least 8 characters")
 
-        # execute a sql line to load user's username
-        db_session = SessionLocal()
-        user_check = db_session.query(User).filter(User.username == username).all()
+        try:
+            stmt = select(User).where(User.username == username)
+            user_check = db_session.execute(stmt).scalar_one()
 
-        # check if the username is taken using user_check
-        if user_check:
+            # check if the username is taken using user_check
+            if user_check:
+                return apology("Username already taken", 400)
+
+            # hashes the plain-text password
+            hashed_password = generate_password_hash(password)
+
+            # Add the newly registered user to the database
+            new_user = User(username=username, hashed_password=hashed_password)
+            db_session.add(new_user)
+            db_session.commit()
+
+            # log in our newly registered user into the website
+            session["user_id"] = new_user.id
+
+            flash("Registered!", "success")
+            return redirect("/")
+
+        except IntegrityError:
+            db_session.rollback()
             return apology("Username already taken", 400)
-
-        # hashes the plain-text password
-        hashed_password = generate_password_hash(password)
-
-        # add the newly registered user into our database
-        new_user = User(username=username, hash=hashed_password)
-        db_session.add(new_user)
-        db_session.commit()
-
-        # log in our newly registered user into the website
-        rows = db_session.query(User).filter(User.username == username).all()
-        if rows:
-            session["user_id"] = rows[0].id
-
-        flash("Registered!", "success")
-        return redirect("/")
 
     # User reached route via GET (as by clicking register or via redirect)
     else:
@@ -339,78 +318,6 @@ def result():
                 "value": nutrient["value"],
                 "unit": nutrient["unit"],
             }
-
-    # recommended daily value micro and macro nutrients for adults
-    daily_values = {
-        "Energy": 2000,  # in kcal
-        "Total lipid (fat)": 70,  # in g
-        "Fatty acids, total saturated": 20,  # in g
-        "Fatty acids, total trans": 2,  # in g
-        "Cholesterol": 300,  # in mg
-        "Sodium, Na": 2300,  # in mg
-        "Carbohydrate, by difference": 310,  # in g
-        "Fiber, total dietary": 25,  # in g
-        "Sugars, total including NLEA": 50,  # in g
-        "Protein": 50,  # in g
-        "Vitamin A, RAE": 900,  # in µg
-        "Vitamin C, total ascorbic acid": 90,  # in mg
-        "Vitamin D (D2 + D3)": 20,  # in µg
-        "Vitamin E (alpha-tocopherol)": 15,  # in mg
-        "Vitamin K (phylloquinone)": 120,  # in µg
-        "Thiamin": 1.2,  # in mg
-        "Riboflavin": 1.3,  # in mg
-        "Niacin": 16,  # in mg
-        "Pantothenic acid": 5,  # in mg
-        "Vitamin B-6": 1.7,  # in mg
-        "Folate, total": 400,  # in µg
-        "Vitamin B-12": 2.4,  # in µg
-        "Vitamin B-12, added": 2.4,  # in µg
-        "Choline, total": 550,  # in mg
-        "Vitamin K (Dihydrophylloquinone)": 120,  # in µg
-        "Folic acid": 400,  # in µg
-        "Folate, food": 400,  # in µg
-        "Folate, DFE": 600,  # in µg
-        "Betaine": 2000,  # in mg
-        "Vitamin E, added": 15,  # in mg
-        "Vitamin B-12 (cobalamin)": 2.4,  # in µg
-        "Vitamin D": 20,  # in µg
-        "Vitamin A": 900,  # in µg
-        "Vitamin E": 15,  # in mg
-        "Vitamin D2 (ergocalciferol)": 20,  # in µg
-        "Vitamin D3 (cholecalciferol)": 20,  # in µg
-        "Vitamin A (IU)": 3000,  # in IU
-        "Vitamin D (IU)": 800,  # in IU
-        "Vitamin E (IU)": 22,  # in IU
-        "Vitamin C": 90,  # in mg
-        "Biotin": 30,  # in µg
-        "Calcium, Ca": 1300,  # in mg
-        "Iron, Fe": 18,  # in mg
-        "Magnesium, Mg": 420,  # in mg
-        "Zinc, Zn": 11,  # in mg
-        "Copper, Cu": 0.9,  # in mg
-        "Manganese, Mn": 2.3,  # in mg
-        "Selenium, Se": 55,  # in µg
-        "Chromium, Cr": 35,  # in µg
-        "Molybdenum, Mo": 45,  # in µg
-        "Chloride, Cl": 2300,  # in mg
-        "Potassium, K": 4700,  # in mg
-        "Phosphorus, P": 1250,  # in mg
-        "Iodine, I": 150,  # in µg
-        "Vitamin B-12, added": 2.4,  # in µg
-        "Vitamin D (D2 + D3), added": 20,  # in µg
-        "Vitamin E (added)": 15,  # in mg
-        "Vitamin B-6, added": 1.7,  # in mg
-        "Vitamin K (Menaquinone-4)": 120,  # in µg
-        "Vitamin K (Menaquinone-7)": 120,  # in µg
-        "Vitamin A, added": 900,  # in µg
-        "Vitamin C, added": 90,  # in mg
-        "Vitamin D2, added": 20,  # in µg
-        "Vitamin D3, added": 20,  # in µg
-        "Vitamin E, added": 15,  # in mg
-        "Vitamin K, added": 120,  # in µg
-        "Vitamin B-12 (Cyanocobalamin)": 2.4,  # in µg
-    }
-
     return render_template(
         "result.html", result=result, nutrient=nutrients, daily_values=daily_values
     )
@@ -451,19 +358,11 @@ def food_log():
         if int(calorie) < 0 or float(protein) < 0 or float(carbs) < 0 or float(fat) < 0:
             return apology("Error Negative value detected!", 400)
 
-    # Get the selected date from the form or use the current date as default
-    selected_date_str = request.form.get("selected_date")
-    if selected_date_str:
-        selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d")
-    else:
-        selected_date = datetime.now()
+    # Calcuate the date for last sunday (start of the week)
+    prev_sunday = current_date - timedelta(days=current_date.weekday() + 1)
 
-    # Calculate the date for the previous Sunday (start of the week)
-    prev_sunday = selected_date - timedelta(days=selected_date.weekday() + 1)
-
-    # Initialize a list to store the dates for the entire week
     week_dates = []
-
+    # Initialize a list to store the dates for the entire week
     for i in range(7):
         day_date = prev_sunday + timedelta(days=i)
         week_dates.append(
@@ -475,23 +374,22 @@ def food_log():
 
         # if the user has submitted with values for these nutrients.
         if food:
-            db_session = SessionLocal()
-            new_food_count = FoodCount(
+            # insert these values into our database
+            stmt = insert(FoodCount).values(
                 user_id=session["user_id"],
                 food_name=food,
                 calories=calorie,
                 protein=protein,
                 carbs=carbs,
                 fat=fat,
-                month=selected_date.month,
-                day=selected_date.day,
-                year=selected_date.year,
-                hour=selected_date.hour,
-                minute=selected_date.minute,
+                month=current_date.month,
+                day=current_date.day,
+                year=current_date.year,
+                hour=current_date.hour,
+                minute=current_date.minute,
             )
-            db_session.add(new_food_count)
+            db_session.execute(stmt)
             db_session.commit()
-            db_session.close()
 
             return redirect("/")
 
@@ -500,29 +398,23 @@ def food_log():
 
     # if the user reached GET (as by clicking food_log)
     else:
-        db_session = SessionLocal()
+        # store our queries in a list
+
         food_log_query = []
         # get the user's food intake for the last 7 days
+        # get the user's food intake for the last 7 days
         for date in week_dates:
-            query_result = (
-                db_session.query(
-                    func.sum(FoodCount.calories).label("total_calories"),
-                    func.sum(FoodCount.protein).label("total_protein"),
-                    func.sum(FoodCount.carbs).label("total_carbs"),
-                    func.sum(FoodCount.fat).label("total_fat"),
-                )
-                .filter(
-                    FoodCount.user_id == session["user_id"],
-                    FoodCount.month == date["month"],
-                    FoodCount.day == date["day"],
-                    FoodCount.year == date["year"],
-                )
-                .all()
+            stmt = select(
+                func.sum(FoodCount.calories).label("total_calories"),
+                func.sum(FoodCount.protein).label("total_protein"),
+                func.sum(FoodCount.carbs).label("total_carbs"),
+                func.sum(FoodCount.fat).label("total_fat"),
+            ).where(
+                FoodCount.user_id == session["user_id"],
+                FoodCount.month == date["month"],
+                FoodCount.day == date["day"],
+                FoodCount.year == date["year"],
             )
-            food_log_query.append(query_result)
-
-        db_session.close()
-
         # Initialize variables to handle no data case
         food_log = None
         graph_url = None
@@ -560,18 +452,22 @@ def food_log():
                 for result in query_result:
                     # Add values from this dictionary to the daily totals, but check for None values first
                     daily_total_calories += (
-                        result.total_calories
-                        if result.total_calories is not None
+                        result["total_calories"]
+                        if result["total_calories"] is not None
                         else 0
                     )
                     daily_total_protein += (
-                        result.total_protein if result.total_protein is not None else 0
+                        result["total_protein"]
+                        if result["total_protein"] is not None
+                        else 0
                     )
                     daily_total_carbs += (
-                        result.total_carbs if result.total_carbs is not None else 0
+                        result["total_carbs"]
+                        if result["total_carbs"] is not None
+                        else 0
                     )
                     daily_total_fat += (
-                        result.total_fat if result.total_fat is not None else 0
+                        result["total_fat"] if result["total_fat"] is not None else 0
                     )
 
                 # Append the daily totals to the respective lists
@@ -608,3 +504,7 @@ def food_log():
             graph_url = base64.b64encode(buffer.getvalue()).decode()
 
         return render_template("food-log.html", food_log=food_log, graph_url=graph_url)
+
+
+if __name__ == "__main__":
+    app.run()

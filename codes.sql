@@ -18,3 +18,5 @@ CREATE TABLE food_count (
     minute INTEGER,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+-- not using this anymore as im using SQLAlchemy Core
