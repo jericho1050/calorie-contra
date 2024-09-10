@@ -218,7 +218,7 @@ def login():
             user = db_session.execute(stmt).scalar_one()
 
             # Ensure username exists and password is correct
-            if not check_password_hash(user.hashed_password, password):
+            if not check_password_hash(user.hash, password):
                 return apology("invalid username and/or password", 403)
 
             # Remember which user has logged in
@@ -274,7 +274,7 @@ def register():
             hashed_password = generate_password_hash(password)
 
             # Add the newly registered user to the database
-            new_user = User(username=username, hashed_password=hashed_password)
+            new_user = User(username=username, hash=hashed_password)
             db_session.add(new_user)
             db_session.commit()
 

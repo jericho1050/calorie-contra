@@ -1,13 +1,4 @@
-import os
-import csv
-import datetime
-import pytz
 import requests
-import subprocess
-import urllib
-import uuid
-import inflect
-import json
 from cs50 import SQL
 from flask import redirect, render_template, session
 from functools import wraps
@@ -89,14 +80,15 @@ def lookup_nutritional_info(query, api_key):
 
 
 def search_food(query, api_key, page, page_size):
-    base_url = "https://api.nal.usda.gov/fdc/v1/"
+    base_url = "https://api.nal.usda.gov/fdc/v1/foods/search"
     data_types = ["Survey (FNDDS)", "SR Legacy", "Foundation"]
     params = {
         "query": query,
         "api_key": api_key,
         "pageNumber": page,
         "pageSize": page_size,
-        "data_types": data_types,
+        "dataType": data_types,
+        "sortBy": "dataType.keyword",
     }
     response = requests.get(base_url, params)
     response.raise_for_status()  # Raise an exception if there's an HTTP error
