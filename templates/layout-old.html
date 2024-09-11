@@ -60,7 +60,7 @@
         <main class="container-fluid py-5 text-center">
             {% block main %}{% endblock %}
         </main>
-        {% if request.path not in ['/details', '/results', '/results-branded'] %}
+        {% if request.path not in ['/details', '/results'] %}
         <footer class="footer">
             <h5 class="text-center">Contact Developer</h5>
             <div class="container index">

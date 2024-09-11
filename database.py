@@ -1,13 +1,16 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, create_engine
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
 # Configure SQLAlchemy
-DATABASE_URL = "sqlite:///user.db"
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+DATABASE_URL = "sqlite+aiosqlite:///user.db"
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 Base = declarative_base()
-
 
 # Define the User model
 class User(Base):
@@ -17,7 +20,6 @@ class User(Base):
     hash = Column(String, nullable=False)
 
     food_counts = relationship("FoodCount", back_populates="user")
-
 
 # Define the FoodCount model
 class FoodCount(Base):
@@ -37,7 +39,15 @@ class FoodCount(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="food_counts")
 
+# Define the Session model
+class Session(Base):
+    __tablename__ = "sessions"
+    id = Column(String, primary_key=True)
+    data = Column(Text, nullable=False)
+    expiry = Column(Integer, nullable=False)
 
-def setup_database():
+
+async def setup_database():
     """Create all tables in the database."""
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
