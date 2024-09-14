@@ -1,0 +1,227 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Results
+{% endblock %}
+
+{% block main %}
+
+
+<h1 id="results">{{ "Search results for " + query or None }}</h1>
+<br><br>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" href="#">All</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">Branded</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">Foundation</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">Survey (FNDDS)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">SR Legacy</a>
+    </li>
+</ul>
+<div class="list-group" id="foods-container">
+</div>
+<div id="loader" class="loader">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+<nav id="pagination-container" aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page > 1 %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('search_foods', q=query, page=page-1) }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+        <!-- ADD PAGE NUMBERS ITEMS here -->
+    </ul>
+</nav>
+
+
+<script>
+    const getEl = (element) => document.querySelector(element);
+
+    const api_key = "{{ api_key }}";
+
+    // global state variables   
+    const query = "{{ query }}";
+    const page = Number("{{ page }}");
+    console.log(page);
+    const dataType = [];
+
+    // obtain elements
+    const $foodsContainer = getEl("#foods-container");
+    const $navLinks = document.querySelectorAll(".nav-link");
+    const $pageItems = document.querySelectorAll(".page-item");
+    const $loader = getEl('#loader')
+    const $pagination = getEl("ul.pagination");
+
+
+    const nutrientNumbers = {
+        protein: 203, // protein
+        fat: 204, // fat
+        carbs: 205, // carbs
+        calories: 208, // calories
+    };
+
+    function addEventListener() {
+        $navLinks.forEach(tab => {
+            tab.addEventListener("click", selectTab);
+        });
+    }
+
+    async function selectTab(event) {
+        event.preventDefault(); // prevent default behavior of the anchor tag
+        $navLinks.forEach(tab => {
+            tab.classList.remove("active")
+        }); // remove active class from all tabs
+
+        event.target.classList.add("active"); // add active class to the clicked tab
+        dataType[0] = event.target.textContent; // set the data type to the text content of the clicked tab
+        const data = await fetchFoodData(dataType);
+        renderFoodData(data);
+        initializePopovers();
+    }
+
+    async function fetchFoodData(dataType = []) {
+
+        // remove every child in the food container 
+        while ($foodsContainer.firstChild) {
+            $foodsContainer.removeChild($foodsContainer.firstChild);
+        }
+        $loader.style.display = "block";
+        try {
+            const baseUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${api_key}&query=${query}`;
+            const pageParam = `&pageNumber=${page}`;
+            const dataTypeParam = dataType.length === 0 || dataType.includes("All") ? "" : `&dataType=${dataType}`;
+            const url = `${baseUrl}${dataTypeParam}${pageParam}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Error:", error);
+            return null;
+        }
+        finally {
+            $loader.style.display = "none";
+        }
+    }
+
+
+    function renderPagination(totalPages) {
+        const url = new URL(window.location.href);
+        for (let p = page; p <= page + 10; p++) {
+            if (p > 0 && p <= totalPages) {
+                const li = document.createElement("li");
+                const pageItemClasses = p === page ? ["page-item", "active"] : ["page-item"];
+                li.classList.add(...pageItemClasses);
+                const a = document.createElement("a");
+                a.classList.add("page-link");
+                a.textContent = p;
+                // Construct the full URL with the page parameter
+
+                url.searchParams.set('page', p);
+                a.href = url.toString();
+                // a.addEventListener("click", handlePaginationClick);
+                li.appendChild(a);
+                $pagination.appendChild(li);
+            }
+        }
+        if (page < totalPages) {
+            const li = document.createElement("li");
+            li.classList.add("page-item");
+            const a = document.createElement("a");
+            a.classList.add("page-link");
+            a.setAttribute("aria-label", "Next");
+            a.innerHTML = '<span aria-hidden="true">&raquo;</span>';
+            url.searchParams.set('page', page + 1);
+            a.href = url.toString();
+            li.appendChild(a);
+            $pagination.appendChild(li);
+        }
+
+    }
+
+    function renderFoodData(data) {
+        const { foods } = data;
+
+        const results = foods.map(food => {
+            const { foodCategory, description, foodNutrients } = food;
+
+            const nutrients = {
+                calories: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.calories)?.value || "N/A",
+                protein: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.protein)?.value || "N/A",
+                fat: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.fat)?.value || "N/A",
+                carbs: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.carbs)?.value || "N/A",
+            };
+
+            return `
+                <form action="/food" method="get" class="food-form">
+                    <input type="hidden" name="food_name" value="${description}">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="quick-info" data-bs-toggle="popover" data-bs-title="Calories and macros" data-bs-content='                        
+                    <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                <small>Calories: </small><strong>${nutrients.calories}${nutrients.calories !== "N/A" ? "kcal" : ""}</strong>
+                                <small>Protein: </small><strong>${nutrients.protein}${nutrients.protein !== "N/A" ? "g" : ""}</strong>
+                                <div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                <small>Total lipid (fat): </small><strong>${nutrients.fat}${nutrients.fat !== "N/A" ? "g" : ""}</strong>
+                                <small>Carbs: </small><strong>${nutrients.carbs}${nutrients.carbs !== "N/A" ? "g" : ""}</strong>
+                            <div>
+                            </div>
+                        </div>'>Quick Info</button>
+                    <button type="submit" class="list-group-item list-group-item-action">
+                        <h2 class="mb-1 text-center" id="food-description">${description}</h2>
+
+                        <em class="text-left">${foodCategory}</em>
+                    </button>
+                </form>
+            `;
+        }).join("");
+
+        $foodsContainer.innerHTML = results;
+    }
+
+    function initializePopovers() {
+        const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        popoverTriggerList.forEach(popoverTriggerEl => {
+            new bootstrap.Popover(popoverTriggerEl, {
+                html: true,
+                trigger: 'hover'
+            });
+        });
+    }
+
+
+
+    async function init() {
+        const data = await fetchFoodData();
+
+        addEventListener();
+        if (data) {
+            renderFoodData(data);
+            initializePopovers();
+        }
+        renderPagination(data.totalPages);
+
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Calorie Contra</title>
+    <link rel="stylesheet" href="../static/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/assets/css/bs-theme-overrides.css">
+    <link rel="stylesheet" href="../static/assets/css/Navbar-With-Button-icons.css">
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md bg-primary py-3" data-bs-theme="dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/home">
+                <span><img src="../static/assets/img/calorie-contra-logo.svg" width="69" height="69"></span>
+            </a>
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                <span class="visually-hidden">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav me-auto">
+                    {% if session["user_id"] %}
+                    <li class="nav-item"><a class="nav-link active" href="#">Food log</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                </ul>
+                <a class="btn fw-semibold" role="button" href="/logout">Logout</a>
+                {% else %}
+                </ul>
+                <div class="ms-auto">
+                    <a class="btn fw-semibold me-2" role="button" href="/login">Login</a>
+                    <a class="btn fw-semibold" role="button" href="/register">Register</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </nav>
+    {% if get_flashed_messages() %}
+    <header>
+        <div class="alert alert-primary mb-0 text-center" role="alert">
+            {{ get_flashed_messages() | join(" ") }}
+        </div>
+    </header>
+    {% endif %}
+    <main class="container-fluid py-5 text-center">
+        {% block main %}{% endblock %}
+    </main>
+
+    <script src="../static/assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

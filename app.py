@@ -9,11 +9,9 @@ from datetime import datetime, timedelta
 from helpers import (
     apology,
     login_required,  # Ensure this is the updated decorator
-    lookup_nutritional_info,
-    search_food,
-    get_nutritional_info,
     is_float,
     daily_values,
+    validate_registration_form,
 )
 import matplotlib
 
@@ -61,7 +59,7 @@ async def after_request(response):
     return response
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/home", methods=["GET", "POST"])
 @login_required
 async def index():
     """displays search form"""
@@ -72,68 +70,22 @@ async def index():
         if len(query) > 30:
             return await apology("String length Error", 404)
         # Redirect to the results page with the search query
-        return redirect(url_for("results", q=query))
+        return redirect(url_for("search_food"))
     else:
-        return await render_template("index.html")
+        return await render_template("home.html")
 
-# TODO 
-# optimize the results route
-# render the invoke the api search_food in the results.html using javascript
-@app.route("/results", methods=["GET"])
+
+@app.route("/search", methods=["GET"])
 @login_required
-async def results():
+async def search_foods():
     """returns lists of food for matched query"""
     query = request.args.get("q")
     page = request.args.get("page", 1, type=int)
-    page_size = 6  # Define your desired page size here
-    fdc_ids = []  # list to store our fdc id
 
-    if not query:
-        return await apology("Query parameter missing", 400)
-
-    # searches food with pagination
-    results, total_hits = await search_food(
-        query, api_key, page=page, page_size=page_size
+    return await render_template(
+        "search_foods.html", query=query, api_key=api_key, page=page
     )
 
-    total_pages = -(
-        -total_hits // page_size
-    )  # Calculate total pages, use double negative for ceiling division
-
-    # check if user has typed something
-    if results and query:
-        nutritional_info = []
-        for result in results:
-            fdc_ids.append(result["fdc_id"])  # append just the fdc id to our list
-
-        # send the request to USDA API using this function
-        foods = await get_nutritional_info(fdc_ids, api_key)
-
-        if foods:
-            for food in foods:
-                nutritional_info.append(
-                    {
-                        "food_name": food["food_name"],
-                        "fdc_id": food["fdc_id"],
-                        "calories": food["calories"],
-                        "protein": food["protein"],
-                        "fat": food["fat"],
-                        "carbs": food["carbs"],
-                    }
-                )
-
-            return await render_template(
-                "results.html",
-                results=nutritional_info,
-                query=query,
-                page=page,
-                page_size=page_size,
-                total_pages=total_pages,
-            )
-        else:
-            return await apology("Sorry, something went wrong", 400)
-    else:
-        return await render_template("results.html", query=query)
 
 @app.route("/login", methods=["GET", "POST"])
 async def login():
@@ -170,7 +122,7 @@ async def login():
             session["user_id"] = user.id
 
             # Redirect user to home page
-            return redirect("/")
+            return redirect("/home")
 
         except NoResultFound:
             return await apology("invalid username and/or password", 403)
@@ -188,25 +140,15 @@ async def register():
     if request.method == "POST":
         form = await request.form
         username = form.get("username")
+        email = form.get("email")
         password = form.get("password")
         confirm_pass = form.get("confirm_password")
 
-        # if username has no input return an apology
-        if not username:
-            return await apology("must provide username", 400)
-
-        # if password has no input return an apology
-        elif not password:
-            return await apology("must provide password", 400)
-
-        elif not confirm_pass:
-            return await apology("must retype password", 400)
-
-        elif password != confirm_pass:
-            return await apology("Wrong Confirm Password", 400)
-
-        elif len(password) < 8 or len(confirm_pass) < 8:
-            return await apology("Password must be at least 8 characters")
+        error_message = validate_registration_form(
+            username, email, password, confirm_pass
+        )
+        if error_message:
+            apology(error_message, 400)
 
         try:
             stmt = select(User).where(User.username == username)
@@ -221,7 +163,7 @@ async def register():
             hashed_password = generate_password_hash(password)
 
             # Add the newly registered user to the database
-            new_user = User(username=username, hash=hashed_password)
+            new_user = User(username=username, email=email, hash=hashed_password)
             db_session.add(new_user)
             await db_session.commit()
 
@@ -229,7 +171,7 @@ async def register():
             session["user_id"] = new_user.id
 
             await flash("Registered!", "success")
-            return await redirect("/")
+            return redirect("/home")
 
         except IntegrityError:
             await db_session.rollback()
@@ -239,6 +181,7 @@ async def register():
     else:
         return await render_template("register.html")
 
+
 @app.route("/logout")
 async def logout():
     """Log user out"""
@@ -247,7 +190,7 @@ async def logout():
     session.clear()
 
     # Redirect user to login form
-    return redirect("/")
+    return redirect("/home")
 
 
 @app.route("/details", methods=["GET", "POST"])
@@ -256,7 +199,6 @@ async def result():
     """display's the selected food's nutrition facts"""
     form = await request.form
     food = form.get("food_name")
-    result = await lookup_nutritional_info(food, api_key)
 
     nutrients = {}
     if result is not None:
@@ -431,4 +373,4 @@ async def food_log():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

@@ -1,0 +1,138 @@
+:root, [data-bs-theme=light] {
+  --bs-primary: #798777;
+  --bs-primary-rgb: 121,135,119;
+  --bs-primary-text-emphasis: #303630;
+  --bs-primary-bg-subtle: #E4E7E4;
+  --bs-primary-border-subtle: #C9CFC9;
+  --bs-secondary: #a2b29f;
+  --bs-secondary-rgb: 162,178,159;
+  --bs-secondary-text-emphasis: #414740;
+  --bs-secondary-bg-subtle: #ECF0EC;
+  --bs-secondary-border-subtle: #DAE0D9;
+  --bs-body-color: #000000;
+  --bs-body-color-rgb: 0,0,0;
+  --bs-secondary-color: rgba(0,0,0,0.75);
+  --bs-secondary-color-rgb: 0,0,0,0.75;
+  --bs-tertiary-color: rgba(0,0,0,0.5);
+  --bs-tertiary-color-rgb: 0,0,0,0.5;
+  --bs-body-bg: #F8EDE3;
+  --bs-body-bg-rgb: 248,237,227;
+}
+
+.btn-primary {
+  --bs-btn-color: #000000;
+  --bs-btn-bg: #798777;
+  --bs-btn-border-color: #798777;
+  --bs-btn-hover-color: #000000;
+  --bs-btn-hover-bg: #8D998B;
+  --bs-btn-hover-border-color: #869385;
+  --bs-btn-focus-shadow-rgb: 18,20,18;
+  --bs-btn-active-color: #000000;
+  --bs-btn-active-bg: #949F92;
+  --bs-btn-active-border-color: #869385;
+  --bs-btn-disabled-color: #000000;
+  --bs-btn-disabled-bg: #798777;
+  --bs-btn-disabled-border-color: #798777;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #798777;
+  --bs-btn-border-color: #798777;
+  --bs-btn-focus-shadow-rgb: 121,135,119;
+  --bs-btn-hover-color: #000000;
+  --bs-btn-hover-bg: #798777;
+  --bs-btn-hover-border-color: #798777;
+  --bs-btn-active-color: #000000;
+  --bs-btn-active-bg: #798777;
+  --bs-btn-active-border-color: #798777;
+  --bs-btn-disabled-color: #798777;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: #798777;
+}
+
+.btn-secondary {
+  --bs-btn-color: #000000;
+  --bs-btn-bg: #a2b29f;
+  --bs-btn-border-color: #a2b29f;
+  --bs-btn-hover-color: #000000;
+  --bs-btn-hover-bg: #B0BEAD;
+  --bs-btn-hover-border-color: #ABBAA9;
+  --bs-btn-focus-shadow-rgb: 24,27,24;
+  --bs-btn-active-color: #000000;
+  --bs-btn-active-bg: #B5C1B2;
+  --bs-btn-active-border-color: #ABBAA9;
+  --bs-btn-disabled-color: #000000;
+  --bs-btn-disabled-bg: #a2b29f;
+  --bs-btn-disabled-border-color: #a2b29f;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: #a2b29f;
+  --bs-btn-border-color: #a2b29f;
+  --bs-btn-focus-shadow-rgb: 162,178,159;
+  --bs-btn-hover-color: #000000;
+  --bs-btn-hover-bg: #a2b29f;
+  --bs-btn-hover-border-color: #a2b29f;
+  --bs-btn-active-color: #000000;
+  --bs-btn-active-bg: #a2b29f;
+  --bs-btn-active-border-color: #a2b29f;
+  --bs-btn-disabled-color: #a2b29f;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: #a2b29f;
+}
+
+/* Custom Popover Styles */
+.popover {
+  --bs-popover-bg: var(--bs-body-bg); /* Background color */
+  --bs-popover-border-color: var(--bs-primary-border-subtle); /* Border color */
+}
+
+.popover-header {
+  background-color: var(--bs-primary); /* Header background color */
+  color: var(--bs-btn-color); /* Header text color */
+  border-bottom: 1px solid var(--bs-primary-border-subtle); /* Header border color */
+}
+
+.popover-body {
+  color: var(--bs-body-color); /* Body text color */
+}
+
+/* Custom Pagination Styles */
+.pagination {
+  --bs-pagination-color: #000000; /* Text color */
+  --bs-pagination-bg: #F8EDE3; /* Background color */
+  --bs-pagination-border-color: #C9CFC9; /* Border color */
+  --bs-pagination-hover-color: #000000; /* Hover text color */
+  --bs-pagination-hover-bg: #E4E7E4; /* Hover background color */
+  --bs-pagination-hover-border-color: #C9CFC9; /* Hover border color */
+  --bs-pagination-active-color: #FFFFFF; /* Active text color */
+  --bs-pagination-active-bg: #798777; /* Active background color */
+  --bs-pagination-active-border-color: #798777; /* Active border color */
+  --bs-pagination-disabled-color: #C9CFC9; /* Disabled text color */
+  --bs-pagination-disabled-bg: #F8EDE3; /* Disabled background color */
+  --bs-pagination-disabled-border-color: #C9CFC9; /* Disabled border color */
+}
+
+.page-item .page-link {
+  color: var(--bs-pagination-color);
+  background-color: var(--bs-pagination-bg);
+  border: 1px solid var(--bs-pagination-border-color);
+}
+
+.page-item .page-link:hover {
+  color: var(--bs-pagination-hover-color);
+  background-color: var(--bs-pagination-hover-bg);
+  border-color: var(--bs-pagination-hover-border-color);
+}
+
+.page-item.active .page-link {
+  color: var(--bs-pagination-active-color);
+  background-color: var(--bs-pagination-active-bg);
+  border-color: var(--bs-pagination-active-border-color);
+}
+
+.page-item.disabled .page-link {
+  color: var(--bs-pagination-disabled-color);
+  background-color: var(--bs-pagination-disabled-bg);
+  border-color: var(--bs-pagination-disabled-border-color);
+}

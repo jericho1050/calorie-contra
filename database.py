@@ -17,6 +17,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
     hash = Column(String, nullable=False)
 
     food_counts = relationship("FoodCount", back_populates="user")

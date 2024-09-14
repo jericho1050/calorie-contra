@@ -1,167 +1,57 @@
-/* color for navbar */
+/* Main CSS file for the project */
+/* if you want to add more styles, add them here */
+/* look in the asset file for more styles */
 
-navcolor {
-    background-color: #e3f2fd;
+/* used in home.html */
+
+h1 {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
 }
-
-/* size logo */
-.size-logo {
-    width: 69px;
-    height: 69px;
-}
-
-.margin {
-    display: inline;
-    width: 75%;
-    margin-left: auto;
-    margin-right: auto;
-    height: 36px;
-}
-
-.btn-primary {
-    display: inline;
-    /* height:36px;
-    width: 7%;
-    margin-left: -5px;
-    margin-top: -3px; */
-}
-
-hr {
-    width: 69%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.popover {
-    position: relative;
-    display: inline-block;
-    width: 169px;
-    padding: 15px;
-}
-
-.popover-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 250px;
-    z-index: 2;
-}
-
-.popover:hover .popover-content {
-    display: inline;
-    margin-left: 20px;
-}
-
-
-h1, h2 {
-    text-align: center;
-}
-
-footer {
-    margin-top: 69px;
-    color: green;
-    flex-shrink: 0;
-}
-
-margin-footer {
-    margin: 69px 0;
-}
-
-p {
-    margin-bottom: 5px;
+.search-input-container {
+  margin-bottom: 1.5em;
 }
 
 .text-center {
-    text-align: center;
+  text-align: center;
 }
 
-.list-group {
-    width: 50%;
-    margin: auto;
-}
-
-.list-group hr {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.list-group h5, h4 {
-    color: green;
-}
-
-.right {
-    text-align: right;
-}
 
 .container.index {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 
 .gmail-logo {
-    margin-left: -3px;
-    margin-top: -3px;
-    width: 15px;
-    height: 15px;
+  margin-left: -3px;
+  margin-top: -3px;
+  width: 15px;
+  height: 15px;
 }
 
-h6 {
-    font-size: 9px;
-}
-
-footer h5 {
-    margin-top: 40vh;
-}
-
-h2 {
-    font-family: "Arial Rounded MT", sans-serif;
-    font-weight: bold;
-}
-
-.text-center h3 {
-    font-family: Chalkboard, cursive;
-}
 
 body::before {
-    content: "";
-    background-image: url('/static/background.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    opacity: 0.1;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
+  content: "";
+  background-image: url('/static/background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
-body {
-    position: relative;
-    z-index: 1;
-}
 
 .loader {
-    transition: opacity 0.75s, visiblity 0.75s;
+  transition: opacity 0.75s, visiblity 0.75s;
 }
 
 .loader-hidden {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.branded {
-    color: green;
-    font-size: 34px;
-    font-family: "Comic Sans MS";
-}
-
-.why-count p {
-    font-size: 12px;
+  opacity: 0;
+  visibility: hidden;
 }
 
 
@@ -190,6 +80,9 @@ header h1 {
   letter-spacing: 0.15px
 }
 
+
+/* Nutritional label style in food.html template */
+/*start*/
 p {
   margin: 0;
   display: flex;
@@ -209,7 +102,8 @@ p {
   height: 10px;
 }
 
-.large, .medium {
+.large,
+.medium {
   background-color: black;
   border: 0;
 }
@@ -273,3 +167,60 @@ b {
   white-space: pre-wrap;
 }
 
+
+/* end */
+/* button[type="submit"] small {
+  display: block !important;
+
+} */
+
+/* used in search_food.html */
+.list-group,
+.nav.nav-tabs {
+  max-width: 600px;
+  margin: auto;
+  padding: 1.25em;
+}
+.food-form {
+  position: relative;
+}
+button[id="quick-info"] {
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+  z-index: 4;
+}
+
+.nav-tabs li.nav-item .nav-link {
+  color: #0f0f0f;
+  border: unset;
+}
+.nav-tabs li.nav-item:hover {
+  background-color: #aec0ab37;
+}
+.nav-tabs li.nav-item .nav-link.active {
+  background-color: #A2B29F; 
+
+}
+
+#food-description {
+  font-weight: bold;
+}
+
+.list-group-item.list-group-item-action {
+  border: unset;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
+  background-color: #BDD2B6;
+  line-height: 1.6em;
+  padding: 1.5em; 
+
+}
+
+.list-group-item.list-group-item-action:hover {
+  background-color: #b7cbb1;
+}
+/* 
+.popover-header {
+  background-color: #F8EDE3;
+} */

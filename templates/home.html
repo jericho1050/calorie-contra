@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Query for food
+{% endblock %}
+
+{% block main %}
+<div class="container border rounded"
+    style="padding: 3em;max-width: var(--bs-breakpoint-md);margin: 2em auto;background-color: #fcf3ea;border: unset !important;">
+    <h1 class="display-2 font-monospace fw-bold text-center text-sm-center text-md-center text-lg-start"
+        style="margin-bottom: 0.6em;text-align: center !important;">Search Food</h1>
+    <form action="{{ url_for('search_foods') }}">
+        <div class="search-input-container">
+            <input class="focus-ring focus-ring-primary form-control-lg flex-grow-1 search-input-form" type="search"
+                name="q" style="width: 100%;margin-bottom: 1em;border: 3px none rgb(0, 0, 0);" autofocus />
+            <button class="btn btn-primary fw-bold border rounded cta-btn-search" type="submit"
+                style="width: 100%;padding: 1em;color: var(--bs-body-bg);">SEARCH</button>
+        </div>
+    </form>
+    <div class="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+</div>
+
+<small class="text-center">Dataset:<a class="link-secondary d-inline-flex"
+        href="https://fdc.nal.usda.gov/api-guide.html" target="_blank"> USDA FDC</a></small>
+<script>
+    const form = document.getElementById("food-form");
+    const loader = document.querySelector(".loader");
+
+    // Hide the loader initially
+    loader.style.display = "none";
+
+    // Add an event listener to the form for form submission
+    form.addEventListener("submit", () => {
+        // Show the loader when the form is submitted
+        document.querySelector(".container").style.display = "none";
+        loader.style.display = "block";
+    });
+</script>
+
+{% endblock %}
