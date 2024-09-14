@@ -35,13 +35,12 @@ Results
 </div>
 <nav id="pagination-container" aria-label="Page navigation">
     <ul class="pagination justify-content-center">
-        {% if page > 1 %}
+
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('search_foods', q=query, page=page-1) }}" aria-label="Previous">
+            <a class="page-link" href="{{ url_for('search', q=query) }}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
-        {% endif %}
         <!-- ADD PAGE NUMBERS ITEMS here -->
     </ul>
 </nav>
@@ -54,14 +53,12 @@ Results
 
     // global state variables   
     const query = "{{ query }}";
-    const page = Number("{{ page }}");
-    console.log(page);
+    let page = 1;
     const dataType = [];
 
     // obtain elements
     const $foodsContainer = getEl("#foods-container");
     const $navLinks = document.querySelectorAll(".nav-link");
-    const $pageItems = document.querySelectorAll(".page-item");
     const $loader = getEl('#loader')
     const $pagination = getEl("ul.pagination");
 
@@ -74,8 +71,12 @@ Results
     };
 
     function addEventListener() {
+        const $pageLinks = document.querySelectorAll(".page-link");
         $navLinks.forEach(tab => {
             tab.addEventListener("click", selectTab);
+        });
+        $pageLinks.forEach(pageItem => {
+            pageItem.addEventListener("click", handlePaginationClick);
         });
     }
 
@@ -119,21 +120,50 @@ Results
         }
     }
 
+    async function handlePaginationClick(event) {
+        event.preventDefault();
+        page = Number(event.target.textContent);
+        const data = await fetchFoodData(dataType);
+        renderFoodData(data);
+        console.log(data);
+
+        // Remove active class from all pagination items
+        const $pageItems = document.querySelectorAll(".page-item");
+        $pageItems.forEach(item => {
+            item.classList.remove("active");
+        });
+        // finally add the current active class to the clicked item
+        event.target.parentElement.classList.add("active");
+    }
+
 
     function renderPagination(totalPages) {
-        const url = new URL(window.location.href);
+        // const url = new URL(window.location.href);
+        if (page !== 1 && page + 10 > 11) {
+            const li = document.createElement("li");
+            li.classList.add("page-item");
+            const a = document.createElement("a");
+            a.classList.add("page-link");
+            a.setAttribute("aria-label", "1");
+            a.innerHTML = '<span aria-hidden="true">1</span>';
+            // url.searchParams.set('page', 1);
+            // a.href = url.toString();
+            li.appendChild(a);
+            $pagination.appendChild(li);
+        }
         for (let p = page; p <= page + 10; p++) {
             if (p > 0 && p <= totalPages) {
                 const li = document.createElement("li");
-                const pageItemClasses = p === page ? ["page-item", "active"] : ["page-item"];
-                li.classList.add(...pageItemClasses);
+                // const pageItemClasses = p === page ? ["page-item", "active"] : ["page-item"];
+                // li.classList.add(...pageItemClasses);
+                li.classList.add("page-item");
                 const a = document.createElement("a");
                 a.classList.add("page-link");
                 a.textContent = p;
                 // Construct the full URL with the page parameter
 
-                url.searchParams.set('page', p);
-                a.href = url.toString();
+                // url.searchParams.set('page', p);
+                // a.href = url.toString();
                 // a.addEventListener("click", handlePaginationClick);
                 li.appendChild(a);
                 $pagination.appendChild(li);
@@ -146,8 +176,8 @@ Results
             a.classList.add("page-link");
             a.setAttribute("aria-label", "Next");
             a.innerHTML = '<span aria-hidden="true">&raquo;</span>';
-            url.searchParams.set('page', page + 1);
-            a.href = url.toString();
+            // url.searchParams.set('page', page + 1);
+            // a.href = url.toString();
             li.appendChild(a);
             $pagination.appendChild(li);
         }
@@ -212,12 +242,13 @@ Results
     async function init() {
         const data = await fetchFoodData();
 
-        addEventListener();
+
         if (data) {
             renderFoodData(data);
             initializePopovers();
+            renderPagination(data.totalPages);
         }
-        renderPagination(data.totalPages);
+        addEventListener();
 
     }
 

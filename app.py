@@ -39,7 +39,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-setup_database()
 db_session = scoped_session(SessionLocal)
 
 api_key = os.getenv("api_key")
@@ -60,7 +59,6 @@ async def after_request(response):
 
 
 @app.route("/home", methods=["GET", "POST"])
-@login_required
 async def index():
     """displays search form"""
     if request.method == "POST":
@@ -70,20 +68,20 @@ async def index():
         if len(query) > 30:
             return await apology("String length Error", 404)
         # Redirect to the results page with the search query
-        return redirect(url_for("search_food"))
+        return redirect(url_for("search"))
     else:
         return await render_template("home.html")
 
 
 @app.route("/search", methods=["GET"])
 @login_required
-async def search_foods():
+async def search():
     """returns lists of food for matched query"""
     query = request.args.get("q")
-    page = request.args.get("page", 1, type=int)
+
 
     return await render_template(
-        "search_foods.html", query=query, api_key=api_key, page=page
+        "search_foods.html", query=query, api_key=api_key
     )
 
 
@@ -193,7 +191,7 @@ async def logout():
     return redirect("/home")
 
 
-@app.route("/details", methods=["GET", "POST"])
+@app.route("/food", methods=["GET", "POST"])
 @login_required
 async def result():
     """display's the selected food's nutrition facts"""
