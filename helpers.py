@@ -39,16 +39,12 @@ def login_required(f):
     return decorated_function
 
 
-
-
 def is_float(str):
     try:
         float(str)  # converts it to a float data type
         return True
     except ValueError:
         return False
-    
-
 
 
 # recommended daily value micro and macro nutrients for adults
@@ -139,6 +135,22 @@ def validate_registration_form(username, email, password, confirm_pass):
         return "Password must be at least 8 characters"
     return None
 
+
+async def get_nutritional_info(fdcId, api_key):
+    """Look up food's nutrional value."""
+
+    base_url = f"https://api.nal.usda.gov/fdc/v1/food/{fdcId}"
+    params = {"api_key": api_key}
+
+    try:
+        async with ClientSession() as session:
+            async with session.get(base_url, params=params) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data
+
+    except (requests.exceptions.RequestException, ValueError, KeyError):
+        return None
 
 
 # deprecated functions
@@ -351,4 +363,3 @@ def validate_registration_form(username, email, password, confirm_pass):
 #                             nutritional_info.append(nutrient_info)
 
 #     return nutritional_info
-

@@ -198,8 +198,8 @@ Results
             };
 
             return `
-                <form action="/food" method="get" class="food-form">
-                    <input type="hidden" name="food_name" value="${description}">
+                <form action="/food/${food.fdcId}" method="get" class="food-form">
+
                     <button type="button" class="btn btn-sm btn-outline-primary" id="quick-info" data-bs-toggle="popover" data-bs-title="Calories and macros" data-bs-content='                        
                     <div class="container">
                             <div class="row">

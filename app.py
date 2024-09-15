@@ -12,6 +12,7 @@ from helpers import (
     is_float,
     daily_values,
     validate_registration_form,
+    get_nutritional_info,
 )
 import matplotlib
 
@@ -79,10 +80,7 @@ async def search():
     """returns lists of food for matched query"""
     query = request.args.get("q")
 
-
-    return await render_template(
-        "search_foods.html", query=query, api_key=api_key
-    )
+    return await render_template("search_foods.html", query=query, api_key=api_key)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -191,23 +189,14 @@ async def logout():
     return redirect("/home")
 
 
-@app.route("/food", methods=["GET", "POST"])
+@app.route("/food/<int:id>", methods=["GET"])
 @login_required
-async def result():
+async def food(id):
     """display's the selected food's nutrition facts"""
-    form = await request.form
-    food = form.get("food_name")
 
-    nutrients = {}
-    if result is not None:
-        for nutrient in result.get("nutrients", []):
-            nutrients[nutrient["name"]] = {
-                "value": nutrient["value"],
-                "unit": nutrient["unit"],
-            }
-    return await render_template(
-        "result.html", result=result, nutrient=nutrients, daily_values=daily_values
-    )
+    food = await get_nutritional_info(id, api_key)
+
+    return await render_template("food.html", food=food)
 
 
 @app.route("/food-log", methods=["GET", "POST"])

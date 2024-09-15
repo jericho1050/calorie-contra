@@ -224,3 +224,58 @@ button[id="quick-info"] {
 .popover-header {
   background-color: #F8EDE3;
 } */
+
+
+/* small info */
+
+p {
+  margin: 0;
+}
+
+
+.facts {
+  width: 100%;
+}
+.facts thead tr th,
+.facts thead tr td {
+  border: 0;
+}
+.facts th,
+.facts td {
+  font-weight: normal;
+  text-align: left;
+  padding: 0.25rem 0;
+  border-top: 1px solid black;
+  white-space: nowrap;
+}
+.facts td:last-child {
+  text-align: right;
+}
+.facts .blank-cell {
+  width: 1rem;
+  border-top: 0;
+}
+.facts .thick-row th,
+.facts .thick-row td {
+  border-top-width: 5px;
+}
+
+.small-info {
+  font-size: 0.7rem;
+}
+
+.facts {
+  border-bottom: 1px solid #999;
+  margin: 0 0 0.5rem 0;
+}
+.facts thead tr {
+  border-bottom: 1px solid black;
+}
+.facts td:last-child {
+  text-align: left;
+}
+.facts th,
+.facts td {
+  border: 0;
+  padding: 0;
+}
