@@ -7,6 +7,7 @@
 h1 {
   font-size: clamp(1.5rem, 5vw, 2.5rem);
 }
+
 .search-input-container {
   margin-bottom: 1.5em;
 }
@@ -69,8 +70,8 @@ body {
 
 .label {
   border: 2px solid black;
-  width: 300px;
-  margin: 20px auto;
+  width: 340px;
+  margin: 2.5em auto;
   padding: 0 7px;
 }
 
@@ -83,6 +84,16 @@ header h1 {
 
 /* Nutritional label style in food.html template */
 /*start*/
+
+.display-1 {
+  margin-bottom: 0.25em;
+  font-weight: 750;
+}
+
+#energy {
+  font-size: 48px;
+}
+
 p {
   margin: 0;
   display: flex;
@@ -181,9 +192,11 @@ b {
   margin: auto;
   padding: 1.25em;
 }
+
 .food-form {
   position: relative;
 }
+
 button[id="quick-info"] {
   position: absolute;
   right: 1em;
@@ -195,11 +208,13 @@ button[id="quick-info"] {
   color: #0f0f0f;
   border: unset;
 }
+
 .nav-tabs li.nav-item:hover {
   background-color: #aec0ab37;
 }
+
 .nav-tabs li.nav-item .nav-link.active {
-  background-color: #A2B29F; 
+  background-color: #A2B29F;
 
 }
 
@@ -213,13 +228,14 @@ button[id="quick-info"] {
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
   background-color: #BDD2B6;
   line-height: 1.6em;
-  padding: 1.5em; 
+  padding: 1.5em;
 
 }
 
 .list-group-item.list-group-item-action:hover {
   background-color: #b7cbb1;
 }
+
 /* 
 .popover-header {
   background-color: #F8EDE3;
@@ -236,10 +252,12 @@ p {
 .facts {
   width: 100%;
 }
+
 .facts thead tr th,
 .facts thead tr td {
   border: 0;
 }
+
 .facts th,
 .facts td {
   font-weight: normal;
@@ -248,13 +266,16 @@ p {
   border-top: 1px solid black;
   white-space: nowrap;
 }
+
 .facts td:last-child {
   text-align: right;
 }
+
 .facts .blank-cell {
   width: 1rem;
   border-top: 0;
 }
+
 .facts .thick-row th,
 .facts .thick-row td {
   border-top-width: 5px;
@@ -265,17 +286,20 @@ p {
 }
 
 .facts {
-  border-bottom: 1px solid #999;
-  margin: 0 0 0.5rem 0;
+  /* border-bottom: 1px solid #999; */
+  margin: 1em 0 0.5rem;
 }
+
 .facts thead tr {
   border-bottom: 1px solid black;
 }
+
 .facts td:last-child {
   text-align: left;
 }
+
 .facts th,
 .facts td {
   border: 0;
-  padding: 0;
+  padding: 0.10rem 0;
 }

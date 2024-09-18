@@ -188,43 +188,42 @@ Results
         const { foods } = data;
 
         const results = foods.map(food => {
-            const { foodCategory, description, foodNutrients } = food;
+    const { foodCategory, description, foodNutrients } = food;
 
-            const nutrients = {
-                calories: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.calories)?.value || "N/A",
-                protein: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.protein)?.value || "N/A",
-                fat: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.fat)?.value || "N/A",
-                carbs: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.carbs)?.value || "N/A",
-            };
+    const nutrients = {
+        calories: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.calories)?.value || "N/A",
+        protein: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.protein)?.value || "N/A",
+        fat: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.fat)?.value || "N/A",
+        carbs: foodNutrients.find(n => Number(n.nutrientNumber) === nutrientNumbers.carbs)?.value || "N/A",
+    };
 
-            return `
-                <form action="/food/${food.fdcId}" method="get" class="food-form">
-
-                    <button type="button" class="btn btn-sm btn-outline-primary" id="quick-info" data-bs-toggle="popover" data-bs-title="Calories and macros" data-bs-content='                        
+        return `
+            <form action="/food/${food.fdcId}" method="get" class="food-form">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="quick-info" data-bs-toggle="popover" data-bs-title="Calories and macros" data-bs-content='
                     <div class="container">
-                            <div class="row">
-                                <div class="col">
+                        <div class="row">
+                            <div class="col">
                                 <small>Calories: </small><strong>${nutrients.calories}${nutrients.calories !== "N/A" ? "kcal" : ""}</strong>
                                 <small>Protein: </small><strong>${nutrients.protein}${nutrients.protein !== "N/A" ? "g" : ""}</strong>
-                                <div>
                             </div>
-                            <div class="row">
-                                <div class="col">
+                        </div>
+                        <div class="row">
+                            <div class="col">
                                 <small>Total lipid (fat): </small><strong>${nutrients.fat}${nutrients.fat !== "N/A" ? "g" : ""}</strong>
                                 <small>Carbs: </small><strong>${nutrients.carbs}${nutrients.carbs !== "N/A" ? "g" : ""}</strong>
-                            <div>
                             </div>
-                        </div>'>Quick Info</button>
-                    <button type="submit" class="list-group-item list-group-item-action">
-                        <h2 class="mb-1 text-center" id="food-description">${description}</h2>
+                        </div>
+                    </div>'>Quick Info</button>
+                <button type="submit" class="list-group-item list-group-item-action">
+                    <h2 class="mb-1 text-center" id="food-description">${description}</h2>
+                    <em class="text-left">${foodCategory}</em>
+                </button>
+            </form>
+        `;
+    }).join("");
 
-                        <em class="text-left">${foodCategory}</em>
-                    </button>
-                </form>
-            `;
-        }).join("");
+    $foodsContainer.innerHTML = results;
 
-        $foodsContainer.innerHTML = results;
     }
 
     function initializePopovers() {
@@ -247,6 +246,7 @@ Results
             renderFoodData(data);
             initializePopovers();
             renderPagination(data.totalPages);
+            getEl('.pagination li:nth-child(2)').classList.add("active");   
         }
         addEventListener();
 

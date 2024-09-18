@@ -1,0 +1,285 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Nutrition Facts
+{% endblock %}
+
+{% block main %}
+
+<!-- foods description  -->
+<h1 class="display-1 text-center">{{ food.description }}</h1>
+<form class="form-inline" action="/food-log" method="post">
+  <input type="hidden" name="food" value=".">
+  <div class="row justify-content-center">
+    <div class="col-5 col-md-2">
+      <input class="form-control" id="serving-size-input" name="calories" placeholder="Serving Size" type="number"
+        min="1" oninput="updateNutrientValues(this.value)">
+    </div>
+    <div class="col-auto">
+      <button id="cta-btn-log" class="btn btn-primary" type="submit">Add to log</button>
+    </div>
+  </div>
+</form>
+<div class="label">
+  <header>
+    <h2 class="bold" style="padding: 0.4em;">Nutrition Facts</h2>
+    <div class="divider"></div>
+    <p class="bold">Serving size
+      <span>
+        <select class="form-select form-select-sm" style="width: 85%; float: right">
+          {% for portion in food.foodPortions %}
+          <option value="{{ portion.gramWeight }}">{{ portion.portionDescription }} ({{ portion.gramWeight }}g)</option>
+          {% endfor %}
+          {% if food.servingSize %}
+          <option value="{{ food.servingSize }}">{{ food.servingSize }}</option>
+          {% endif %}
+          <option value="100">100g</option>
+        </select>
+        <input type="hidden" id="serving-size" name="servingSize" value="">
+      </span>
+    </p>
+  </header>
+  <div class="divider large"></div>
+  <div class="calories-info">
+    <div class="left-container">
+      <h2 class="bold small-text">Amount per serving</h2>
+      <p>Calories</p>
+    </div>
+    <span data-nutrient-number="208" id="energy"></span>
+  </div>
+  <div class="divider medium"></div>
+  <div class="daily-value small-text">
+    <p class="bold right no-divider">% Daily Value *</p>
+    <div class="divider"></div>
+    <p><span><span class="bold">Total Fat</span> <span data-nutrient-number="204"></span></p>
+    <p class="indent no-divider"><span>Saturated Fat <span data-nutrient-number="606"></span></span></p>
+    <div class="divider"></div>
+    <p class="indent no-divider"><span><i>Trans</i> Fat </span> <span data-nutrient-number="605"></span></p>
+    <span></span>
+    <div class="divider"></div>
+    <p><span><span class="bold">Cholesterol </span><span data-nutrient-number="601"></span></p>
+    <p><span><span class="bold">Sodium</span> <span data-nutrient-number="307"></span></p>
+    <p><span><span class="bold">Total Carbohydrate</span> <span data-nutrient-number="205"></span></p>
+    <p class="indent no-divider"><span>Dietary Fiber <span data-nutrient-number="291"></span></span></p>
+    <div class="divider"></div>
+    <p class="indent no-divider"><span>Total Sugars <span data-nutrient-number="269"></span></span></p>
+    <p class="double-indent no-divider">Incl. Added Sugars <span id="Sugars, total including NLEA-value"></span></p>
+    <span></span>
+    <div class="divider"></div>
+    <p class="no-divider"><span class="bold">Protein <span style="font-weight: 500;" data-nutrient-number="203"></span>
+      </span><span></span></p>
+    <div class="divider large"></div>
+    <!-- minerals and micronutrients -->
+    <p class="divider"><span>Calcium <span data-nutrient-number="301"></span></span></p>
+    <p class="divider"><span>Iron <span data-nutrient-number="303"></span></span></p>
+    <p class="divider"><span>Potassium <span data-nutrient-number="306"></span></span></p>
+    <p class="divider"><span>Vitamin A <span data-nutrient-number="318"></span></span></p>
+    <p class="divider"><span>Vitamin B-6 <span data-nutrient-number="415"></span></span></p>
+    <p class="divider"><span>Vitamin B-12 <span data-nutrient-number="418"></span></span></p>
+    <p class="divider"><span>Vitamin C <span data-nutrient-number="401"></span></span></p>
+    <p class="divider"><span>Vitamin D <span data-nutrient-number="328"></span></span></p>
+    <p class="divider"><span>Vitamin K <span data-nutrient-number="430"></span></span></p>
+    <p class="divider"><span>Zinc <span data-nutrient-number="309"></span></span></p>
+    <p class="divider"><span>Thiamin <span data-nutrient-number="404"></span></span></p>
+
+
+  </div>
+  <p class="small-info note">* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher
+    or lower depending on your calorie needs:</p>
+  <table class="facts small-info">
+    <thead>
+      <tr>
+        <td colspan="2"></td>
+        <th>Calories:</th>
+        <th>2,000</th>
+        <th>2,500</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th colspan="2">Total Fat</th>
+        <td>Less than</td>
+        <td>65g</td>
+        <td>80g</td>
+      </tr>
+      <tr>
+        <td class="blank-cell"></td>
+        <th>Saturated Fat</th>
+        <td>Less than</td>
+        <td>20g</td>
+        <td>25g</td>
+      </tr>
+      <tr>
+        <th colspan="2">Cholesterol</th>
+        <td>Less than</td>
+        <td>300mg</td>
+        <td>300 mg</td>
+      </tr>
+      <tr>
+        <th colspan="2">Sodium</th>
+        <td>Less than</td>
+        <td>2,400mg</td>
+        <td>2,400mg</td>
+      </tr>
+      <tr>
+        <th colspan="3">Total Carbohydrate</th>
+        <td>300g</td>
+        <td>375g</td>
+      </tr>
+      <tr>
+        <td class="blank-cell"></td>
+        <th colspan="2">Dietary Fiber</th>
+        <td>25g</td>
+        <td>30g</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<br>
+
+<script>
+  const getEl = element => document.querySelector(element);
+  const $servingSize = getEl('#serving-size');
+  const $selectMenu = getEl(".form-select")
+
+  // formula for calculating the value of the amount (i.e., the energy, macro and micro nutrients) per serving using a propotion method
+  // amount per serving = (amount per 100g) * (serving size in g) / 100
+  // formula for daily value percentage
+  // daily value percentage % = (amount per serving / daily value) * 100
+
+  const foodNutrients = {{ food.foodNutrients | tojson }}; // -> Array[Object]
+  // const servingSize = {{ food.servingSize | default ('null') | safe }}; // -> Number if it's a Branded Type
+
+  const dailyValues = {
+    "Added Sugars": 50,          // g
+    "Biotin": 0.00003,           // mcg to g
+    "Calcium": 1.3,              // mg to g
+    "Chloride": 2.3,             // mg to g
+    "Choline": 0.55,             // mg to g
+    "Cholesterol": 0.3,          // mg to g
+    "Chromium": 0.000035,        // mcg to g
+    "Copper": 0.0009,            // mg to g
+    "Dietary Fiber": 28,         // g
+    "Fat": 78,                   // g
+    "Folate/Folic Acid": 0.0004, // mcg DFE to g
+    "Iodine": 0.00015,           // mcg to g
+    "Iron": 0.018,               // mg to g
+    "Magnesium": 0.42,           // mg to g
+    "Manganese": 0.0023,         // mg to g
+    "Molybdenum": 0.000045,      // mcg to g
+    "Niacin": 0.016,             // mg NE to g
+    "Pantothenic Acid": 0.005,   // mg to g
+    "Phosphorus": 1.25,          // mg to g
+    "Potassium": 4.7,            // mg to g
+    "Protein": 50,               // g
+    "Riboflavin": 0.0013,        // mg to g
+    "Saturated Fat": 20,         // g
+    "Selenium": 0.000055,        // mcg to g
+    "Sodium": 2.3,               // mg to g
+    "Thiamin": 0.0012,           // mg to g
+    "Total Carbohydrate": 275,   // g
+    "Vitamin A": 0.0009,         // mcg RAE to g
+    "Vitamin B6": 0.0017,        // mg to g
+    "Vitamin B12": 0.0000024,    // mcg to g
+    "Vitamin C": 0.09,           // mg to g
+    "Vitamin D": 0.00002,        // mcg to g
+    "Vitamin E": 0.015,          // mg alpha-tocopherol to g
+    "Vitamin K": 0.00012,        // mcg to g
+    "Zinc": 0.011                // mg to g
+  };
+
+  const nutrientNameMapping = {
+    "Added Sugars": "Added Sugars",
+    "Biotin": "Biotin",
+    "Calcium, Ca": "Calcium",
+    "Chloride, Cl": "Chloride",
+    "Choline, total": "Choline",
+    "Cholesterol": "Cholesterol",
+    "Chromium, Cr": "Chromium",
+    "Copper, Cu": "Copper",
+    "Dietary Fiber": "Dietary Fiber",
+    "Total lipid (fat)": "Fat",
+    "Folate, total": "Folate/Folic Acid",
+    "Iodine, I": "Iodine",
+    "Iron, Fe": "Iron",
+    "Magnesium, Mg": "Magnesium",
+    "Manganese, Mn": "Manganese",
+    "Molybdenum, Mo": "Molybdenum",
+    "Niacin": "Niacin",
+    "Pantothenic acid": "Pantothenic Acid",
+    "Phosphorus, P": "Phosphorus",
+    "Potassium, K": "Potassium",
+    "Protein": "Protein",
+    "Riboflavin": "Riboflavin",
+    "Saturated Fat": "Saturated Fat",
+    "Selenium, Se": "Selenium",
+    "Sodium, Na": "Sodium",
+    "Thiamin": "Thiamin",
+    "Carbohydrate, by difference": "Total Carbohydrate",
+    "Vitamin A, RAE": "Vitamin A",
+    "Vitamin B-6": "Vitamin B6",
+    "Vitamin B-12": "Vitamin B12",
+    "Vitamin C, total ascorbic acid": "Vitamin C",
+    "Vitamin D (D2 + D3)": "Vitamin D",
+    "Vitamin E (alpha-tocopherol)": "Vitamin E",
+    "Vitamin K (phylloquinone)": "Vitamin K",
+    "Zinc, Zn": "Zinc"
+  };
+
+  // Function to update nutrient values
+  window.updateNutrientValues = (selectedValue) => {
+    console.log(selectedValue);
+    foodNutrients.forEach(n => {
+      const { amount, nutrient } = n;
+      let amountPerServing = ((amount * selectedValue) / 100).toFixed(2);
+      const nutrientKey = nutrientNameMapping[nutrient.name];
+      const dailyValue = dailyValues[nutrientKey];
+
+      // Convert amountPerServing to grams if the unit is in milligrams
+      if (nutrient.unitName === 'mg') {
+        amountPerServing = (amountPerServing / 1000).toFixed(2);
+      } else if (nutrient.unitName === "µg") {
+        amountPerServing = (amountPerServing / 1000000).toFixed(2);
+      }
+
+      const dailyValuePercentage = dailyValue ? parseInt((amountPerServing / dailyValue) * 100) : '';
+      const $nutrientElement = getEl(`[data-nutrient-number="${nutrient.number}"]`);
+
+      if ($nutrientElement) {
+        if (parseInt(nutrient.number) === 208) {
+          $nutrientElement.innerHTML = parseInt(amountPerServing);
+          return; // skip the rest of the code, so go next
+        }
+        $nutrientElement.innerHTML = amountPerServing + nutrient.unitName;
+        const p = $nutrientElement.parentElement.parentElement;
+        let span = p.lastElementChild;
+        if (!span || !span.classList.contains('bold')) {
+          span = document.createElement("span");
+          span.classList.add('bold');
+          p.appendChild(span);
+        }
+        span.innerHTML = `${dailyValuePercentage}%`;
+      }
+
+
+    });
+  };
+
+  // initial value of the amount per serving
+  updateNutrientValues($selectMenu.value);
+
+
+  getEl('.form-select').addEventListener('change', function (event) {
+    const selectedValue = event.target.value;
+    getEl('#serving-size-input').value = selectedValue;
+    updateNutrientValues(selectedValue);
+  });
+
+  // Rneder vitamins and minerals
+
+
+</script>
+
+
+
+{% endblock %}
