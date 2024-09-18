@@ -1,4 +1,6 @@
-import os, quart_flask_patch
+import os
+import json
+import quart_flask_patch
 from quart import Quart, flash, redirect, render_template, request, url_for, session
 
 # from flask_caching import Cache
@@ -203,37 +205,6 @@ async def food(id):
 @login_required
 async def food_log():
     """User's food log or diet history"""
-    form = await request.form
-    food = form.get("food")
-    calorie = form.get("Energy")
-    protein = form.get("Protein")
-    carbs = form.get("Carbohydrate, by difference")
-    fat = form.get("Total lipid (fat)")
-
-    if (
-        calorie is not None
-        and protein is not None
-        and carbs is not None
-        and fat is not None
-    ):
-        try:
-            calorie = float(calorie)
-            protein = float(protein)
-            carbs = float(carbs)
-            fat = float(fat)
-        except ValueError:
-            return await apology("Error invalid values!", 400)
-
-        if (
-            not is_float(calorie)
-            or not is_float(protein)
-            or not is_float(carbs)
-            or not is_float(fat)
-        ):
-            return await apology("Error invalid values!", 400)
-
-        if int(calorie) < 0 or float(protein) < 0 or float(carbs) < 0 or float(fat) < 0:
-            return await apology("Error Negative value detected!", 400)
 
     # Calculate the date for last Sunday (start of the week)
     current_date = datetime.now()
@@ -249,6 +220,44 @@ async def food_log():
 
     # if user reached POST (as by submitting a form via POST)
     if request.method == "POST":
+        data = await request.get_data()
+        data = data.decode("utf-8")
+        data = json.loads(data)
+        food = data.get("food")
+        calorie = data.get("calories")
+        protein = data.get("protein")
+        carbs = data.get("carbs")
+        fat = data.get("fat")
+
+        if (
+            calorie is not None
+            and protein is not None
+            and carbs is not None
+            and fat is not None
+        ):
+            try:
+                calorie = float(calorie)
+                protein = float(protein)
+                carbs = float(carbs)
+                fat = float(fat)
+            except ValueError:
+                return await apology("Error invalid values!", 400)
+
+            if (
+                not is_float(calorie)
+                or not is_float(protein)
+                or not is_float(carbs)
+                or not is_float(fat)
+            ):
+                return await apology("Error invalid values!", 400)
+
+            if (
+                int(calorie) < 0
+                or float(protein) < 0
+                or float(carbs) < 0
+                or float(fat) < 0
+            ):
+                return await apology("Error Negative value detected!", 400)
 
         # if the user has submitted with values for these nutrients.
         if food:
@@ -269,7 +278,7 @@ async def food_log():
             await db_session.execute(stmt)
             await db_session.commit()
 
-            return redirect("/")
+            return {"message": "success"}
 
         else:
             return await apology("Error", 400)

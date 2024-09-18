@@ -8,7 +8,6 @@ Results
 
 
 <h1 id="results">{{ "Search results for " + query or None }}</h1>
-<br><br>
 <ul class="nav nav-tabs">
     <li class="nav-item">
         <a class="nav-link active" href="#">All</a>
@@ -125,7 +124,6 @@ Results
         page = Number(event.target.textContent);
         const data = await fetchFoodData(dataType);
         renderFoodData(data);
-        console.log(data);
 
         // Remove active class from all pagination items
         const $pageItems = document.querySelectorAll(".page-item");
