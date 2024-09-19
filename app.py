@@ -25,13 +25,17 @@ import numpy as np
 import base64
 from io import BytesIO
 from dotenv import load_dotenv
+import google.generativeai as genai
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import select, insert, func
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from database import setup_database, SessionLocal, User, FoodCount
 
 
-load_dotenv()
+load_dotenv() # load the environment variables
+genai.configure(api_key=os.environ["gemini_api_key"]) # configure the API key for generative AI
+model = genai.GenerativeModel("gemini-1.5-flash")
+
 
 # Configure application
 app = Quart(__name__)
@@ -92,7 +96,7 @@ async def search_foods():
     data_type = request.args.get("dataType", "")
 
     if not query:
-        return jsonify({"error": "Query parameter is required"}), 400
+        return {"error": "Query parameter is required"}
 
     try:
         base_url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={api_key}&query={query}"
@@ -105,7 +109,6 @@ async def search_foods():
         return jsonify(data)
     except requests.RequestException as e:
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/login", methods=["GET", "POST"])
 async def login():
@@ -233,9 +236,7 @@ async def food_log():
 
     # if user reached POST (as by submitting a form via POST)
     if request.method == "POST":
-        data = await request.get_data()
-        data = data.decode("utf-8")
-        data = json.loads(data)
+        data = await request.get_json()
         food = data.get("food")
         calorie = data.get("calories")
         protein = data.get("protein")
@@ -432,6 +433,18 @@ async def food_log():
         return await render_template(
             "food-log.html", food_log=food_log, graph_html=graph_html, selected_date=selected_date_str
         )
+        
+@app.route("/generate", methods=["POST"])
+async def generate():
+    """Generate a text using the generative AI model"""
+    data = await request.get_json()
+    if data is None or "prompt" not in data:
+        return jsonify({"error": "Invalid input"}), 400
+
+    prompt = data["prompt"]
+    response = await model.generate_content_async(prompt)
+    
+    return {"text": response.text}
 
 if __name__ == "__main__":
     app.run(debug=True)

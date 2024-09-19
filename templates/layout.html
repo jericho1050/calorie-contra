@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../static/assets/css/bs-theme-overrides.css">
     <link rel="stylesheet" href="../static/assets/css/Navbar-With-Button-icons.css">
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/chatbot.css">
 </head>
 
 <body>
@@ -37,7 +38,6 @@
                 {% endif %}
             </div>
         </div>
-        </div>
     </nav>
     {% if get_flashed_messages() %}
     <header>
@@ -49,8 +49,216 @@
     <main class="container-fluid py-5 text-center">
         {% block main %}{% endblock %}
     </main>
-
+    <div class="chatbot-container">
+        <button id="chatbot-toggle" class="chatbot-toggle"><svg height="33" viewBox="0 0 32 32" width="33"
+                id="chatbot-svg" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="m16 19a6.9908 6.9908 0 0 1 -5.833-3.1287l1.666-1.1074a5.0007 5.0007 0 0 0 8.334 0l1.666 1.1074a6.9908 6.9908 0 0 1 -5.833 3.1287z" />
+                <path d="m20 8a2 2 0 1 0 2 2 1.9806 1.9806 0 0 0 -2-2z" />
+                <path d="m12 8a2 2 0 1 0 2 2 1.9806 1.9806 0 0 0 -2-2z" />
+                <path
+                    d="m17.7358 30-1.7358-1 4-7h6a1.9966 1.9966 0 0 0 2-2v-14a1.9966 1.9966 0 0 0 -2-2h-20a1.9966 1.9966 0 0 0 -2 2v14a1.9966 1.9966 0 0 0 2 2h9v2h-9a3.9993 3.9993 0 0 1 -4-4v-14a3.9988 3.9988 0 0 1 4-4h20a3.9988 3.9988 0 0 1 4 4v14a3.9993 3.9993 0 0 1 -4 4h-4.8354z" />
+                <path d="m0 0h32v32h-32z" fill="none" />
+            </svg></button>
+        <div id="peekobot-container" class="hidden">
+            <div id="peekobot-inner">
+                <div id="peekobot"></div>
+            </div>
+            <div class="chat-input-container">
+                <textarea id="chat-input" class="form-control" placeholder="Type your message here..."
+                    rows="4"></textarea>
+                <button id="chat-submit" class="btn btn-secondary">Send</button>
+            </div>
+        </div>
+    </div>
     <script src="../static/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script type="module">
+        import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+        const chat = {
+            1: {
+                text: 'Hi! Welcome to Calorie Contra.',
+                options: [
+                    {
+                        text: '👋',
+                        next: 2
+                    }
+                ]
+            },
+            2: {
+                text: 'Calorie Counter is a web app that helps you track your daily food intake.',
+                next: 3
+            },
+            3: {
+                text: 'But you probably knew that anyway.',
+                options: [
+                    {
+                        text: "Yes, I did!",
+                        next: 4
+                    },
+                    {
+                        text: "Nope, I didn't knew that",
+                        next: 5
+                    }
+                ]
+            },
+            4: {
+                text: 'Awesome, Happy Tracking!',
+            },
+            5: {
+                text: 'Aah, you\'re missing out!',
+                next: 6
+            },
+            6: {
+                text: 'For any questions or feedback, feel free to reach out.',
+                options: [
+                    {
+                        text: "Go to GitHub",
+                        url: "https://github.com/jericho1050/calorie-contra"
+                    }
+                ]
+            }
+        };
+
+        const bot = function () {
+
+            const peekobot = document.getElementById('peekobot');
+            const container = document.getElementById('peekobot-container');
+            const inner = document.getElementById('peekobot-inner');
+            const chatInput = document.getElementById('chat-input');
+            const chatSubmit = document.getElementById('chat-submit');
+
+            const sleep = function (ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            };
+
+            const scrollContainer = function () {
+                inner.scrollTop = inner.scrollHeight;
+            };
+
+            const insertNewChatItem = function (elem) {
+                peekobot.appendChild(elem);
+                scrollContainer();
+                elem.classList.add('activated');
+            };
+
+            const printResponse = async function (step) {
+                const response = document.createElement('div');
+                response.classList.add('chat-response');
+                response.innerHTML = step.text;
+                insertNewChatItem(response);
+
+                await sleep(1500);
+
+                if (step.options) {
+                    const choices = document.createElement('div');
+                    choices.classList.add('choices');
+                    step.options.forEach(function (option) {
+                        const button = document.createElement(option.url ? 'a' : 'button');
+                        button.classList.add('choice');
+                        button.innerHTML = option.text;
+                        if (option.url) {
+                            button.href = option.url;
+                        } else {
+                            button.dataset.next = option.next;
+                        }
+                        choices.appendChild(button);
+                    });
+                    insertNewChatItem(choices);
+                } else if (step.next) {
+                    printResponse(chat[step.next]);
+                }
+            };
+
+            const printChoice = function (choice) {
+                const choiceElem = document.createElement('div');
+                choiceElem.classList.add('chat-ask');
+                choiceElem.innerHTML = choice.innerHTML;
+                insertNewChatItem(choiceElem);
+            };
+
+            const disableAllChoices = function () {
+                const choices = document.querySelectorAll('.choice');
+                choices.forEach(function (choice) {
+                    choice.disabled = 'disabled';
+                });
+                return;
+            };
+
+            const handleChoice = async function (e) {
+                if (!e.target.classList.contains('choice') || 'A' === e.target.tagName) {
+                    var button = e.target.closest('#peekobot-container .choice');
+                    if (button !== null) {
+                        button.click();
+                    }
+                    return;
+                }
+
+                e.preventDefault();
+                const choice = e.target;
+
+                disableAllChoices();
+
+                printChoice(choice);
+                scrollContainer();
+
+                await sleep(1500);
+
+                if (choice.dataset.next) {
+                    printResponse(chat[choice.dataset.next]);
+                }
+            };
+
+            const handleInputSubmit = async function () {
+                const userInput = chatInput.value.trim();
+                if (!userInput) return;
+
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('chat-ask');
+                userMessage.innerHTML = userInput;
+                insertNewChatItem(userMessage);
+
+                chatInput.value = '';
+
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: userInput })
+                });
+
+                const data = await response.json();
+                const botResponse = document.createElement('div');
+                botResponse.classList.add('chat-response');
+                botResponse.innerHTML = marked(data.text);
+                insertNewChatItem(botResponse);
+            };
+
+            const startConversation = function () {
+                printResponse(chat[1]);
+            };
+
+            const init = function () {
+                container.addEventListener('click', handleChoice);
+                chatSubmit.addEventListener('click', handleInputSubmit);
+                chatInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        handleInputSubmit();
+                    }
+                });
+                startConversation();
+            };
+
+            init();
+        };
+
+        bot();
+
+        document.getElementById('chatbot-toggle').addEventListener('click', function () {
+            const container = document.getElementById('peekobot-container');
+            container.classList.toggle('hidden');
+        });
+    </script>
 </body>
 
 </html>
