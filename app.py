@@ -1,7 +1,8 @@
 import os
 import json
 import quart_flask_patch
-from quart import Quart, flash, redirect, render_template, request, url_for, session
+from quart import Quart, flash, redirect, render_template, request, url_for, session, jsonify
+import requests
 
 # from flask_caching import Cache
 from flask_session import Session
@@ -83,6 +84,27 @@ async def search():
     query = request.args.get("q")
 
     return await render_template("search_foods.html", query=query, api_key=api_key)
+
+@app.route("/api/search_foods", methods=["GET"])
+async def search_foods():
+    query = request.args.get("query")
+    page = request.args.get("page", 1)
+    data_type = request.args.get("dataType", "")
+
+    if not query:
+        return jsonify({"error": "Query parameter is required"}), 400
+
+    try:
+        base_url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={api_key}&query={query}"
+        page_param = f"&pageNumber={page}"
+        data_type_param = f"&dataType={data_type}" if data_type else ""
+        url = f"{base_url}{data_type_param}{page_param}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return jsonify(data)
+    except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/login", methods=["GET", "POST"])
