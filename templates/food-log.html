@@ -1,11 +1,37 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Calorie Log {% endblock %} {%
+block main %}
+<!-- Form to select the date -->
+<form method="GET" action="/food-log">
+    <label for="selected_date" id="select-date-label">Select Date:</label>
+    <div class="input-group d-flex justify-content-center mb-4">
+        <input class="form-control" type="date" id="selected_date" name="selected_date" value="{{ selected_date }}" />
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+</form>
 
-{% block title %}
- Calorie Log
-{% endblock %}
 
-{% block main %}
-    <!-- Display the graph using an img element -->
-    <img src="data:image/png;base64,{{ graph_url }}" alt="Calorie Intake Graph">
+<!-- Display the graph using the generated HTML -->
+{{ graph_html|safe }}
 
+
+<!-- JavaScript to auto-play the animation -->
+<script>
+    window.onload = () => {
+        const increaseButton = document.querySelector('button[title="Increase speed"]')
+        const playButton = document.querySelector('button[title="Play"]');
+        const graph = document.querySelector('.animation img');
+        if (graph) {
+            graph.classList.add('img-fluid');
+        }
+
+        if (increaseButton) {
+            increaseButton.click();
+            increaseButton.click();
+        }
+        if (playButton) {
+            playButton.click();
+        }
+
+    } 
+</script>
 {% endblock %}

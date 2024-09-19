@@ -303,3 +303,15 @@ p {
   border: 0;
   padding: 0.10rem 0;
 }
+
+#select-date-label {
+  font-weight: 600;
+  font-size: 1.5em;
+  padding-bottom: 0.25em;
+
+}
+
+.input-group {
+  width: 250px;
+  margin: auto;
+}

@@ -48,7 +48,7 @@ Results
 <script>
     const getEl = (element) => document.querySelector(element);
 
-    const api_key = "{{ api_key }}";
+    const api_key = "{{ api_key }}"; // huge mistake as {{ api_key }} exposes it. so wrong move
 
     // global state variables   
     const query = "{{ query }}";
