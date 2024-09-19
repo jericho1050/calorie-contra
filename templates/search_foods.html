@@ -7,7 +7,7 @@ Results
 {% block main %}
 
 
-<h1 id="results">{{ "Search results for " + query or None }}</h1>
+<h1 id="results">{{ "Search results for "}}<strong>{{query or None}}</strong></h1>
 <ul class="nav nav-tabs">
     <li class="nav-item">
         <a class="nav-link active" href="#">All</a>
@@ -47,8 +47,6 @@ Results
 
 <script>
     const getEl = (element) => document.querySelector(element);
-
-    const api_key = "{{ api_key }}";
 
     // global state variables   
     const query = "{{ query }}";
@@ -93,15 +91,14 @@ Results
     }
 
     async function fetchFoodData(dataType = []) {
-
         // remove every child in the food container 
         while ($foodsContainer.firstChild) {
             $foodsContainer.removeChild($foodsContainer.firstChild);
         }
         $loader.style.display = "block";
         try {
-            const baseUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${api_key}&query=${query}`;
-            const pageParam = `&pageNumber=${page}`;
+            const baseUrl = `/api/search_foods?query=${query}`;
+            const pageParam = `&page=${page}`;
             const dataTypeParam = dataType.length === 0 || dataType.includes("All") ? "" : `&dataType=${dataType}`;
             const url = `${baseUrl}${dataTypeParam}${pageParam}`;
             const response = await fetch(url);

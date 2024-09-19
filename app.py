@@ -1,7 +1,8 @@
 import os
 import json
 import quart_flask_patch
-from quart import Quart, flash, redirect, render_template, request, url_for, session
+from quart import Quart, flash, redirect, render_template, request, url_for, session, jsonify
+import requests
 
 # from flask_caching import Cache
 from flask_session import Session
@@ -17,9 +18,9 @@ from helpers import (
     get_nutritional_info,
 )
 import matplotlib
-
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import numpy as np
 import base64
 from io import BytesIO
@@ -83,6 +84,27 @@ async def search():
     query = request.args.get("q")
 
     return await render_template("search_foods.html", query=query, api_key=api_key)
+
+@app.route("/api/search_foods", methods=["GET"])
+async def search_foods():
+    query = request.args.get("query")
+    page = request.args.get("page", 1)
+    data_type = request.args.get("dataType", "")
+
+    if not query:
+        return jsonify({"error": "Query parameter is required"}), 400
+
+    try:
+        base_url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={api_key}&query={query}"
+        page_param = f"&pageNumber={page}"
+        data_type_param = f"&dataType={data_type}" if data_type else ""
+        url = f"{base_url}{data_type_param}{page_param}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return jsonify(data)
+    except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -208,15 +230,6 @@ async def food_log():
 
     # Calculate the date for last Sunday (start of the week)
     current_date = datetime.now()
-    prev_sunday = current_date - timedelta(days=current_date.weekday() + 1)
-
-    week_dates = []
-    # Initialize a list to store the dates for the entire week
-    for i in range(7):
-        day_date = prev_sunday + timedelta(days=i)
-        week_dates.append(
-            {"month": day_date.month, "day": day_date.day, "year": day_date.year}
-        )
 
     # if user reached POST (as by submitting a form via POST)
     if request.method == "POST":
@@ -285,6 +298,22 @@ async def food_log():
 
     # if the user reached GET (as by clicking food_log)
     else:
+        # Get the selected date from the form or use the current date as default
+        selected_date_str = request.args.get("selected_date")
+        if selected_date_str:
+            selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d")
+        else:
+            selected_date = datetime.now()
+
+        prev_sunday = selected_date - timedelta(days=selected_date.weekday() + 1)
+        week_dates = []
+        # Initialize a list to store the dates for the entire week
+        for i in range(7):
+            day_date = prev_sunday + timedelta(days=i)
+            week_dates.append(
+                {"month": day_date.month, "day": day_date.day, "year": day_date.year}
+            )
+
         # store our queries in a list
         food_log_query = []
         # get the user's food intake for the last 7 days
@@ -305,7 +334,7 @@ async def food_log():
 
         # Initialize variables to handle no data case
         food_log = None
-        graph_url = None
+        graph_html = None
 
         # checks if the query has some content.
         if food_log_query:
@@ -327,46 +356,82 @@ async def food_log():
             total_protein = []
             total_carbs = []
             total_fat = []
+            # Generate date labels
+            date_labels = []
 
             # Loop through the queries (one query for each day)
-            for result in food_log_query:
+            for i, result in enumerate(food_log_query):
                 # Append the daily totals to the respective lists
                 total_calories.append(result.total_calories or 0)
                 total_protein.append(result.total_protein or 0)
                 total_carbs.append(result.total_carbs or 0)
                 total_fat.append(result.total_fat or 0)
 
+                # Generate the date label for the current day
+                date = prev_sunday + timedelta(days=i)
+                date_label = f"{week[i]}\n{date.strftime('%m-%d-%y')}"
+                date_labels.append(date_label)
+
             # calculates the max data
             max_value = max(total_calories)
             y_max = max_value + 50
 
             # Increase the figure width here
-            plt.figure(figsize=(10, 6))  # Adjusts the width and height
+            fig, ax = plt.figure(figsize=(10, 6)), plt.gca()  # Adjusts the width and height
 
             # set the y-axis label limit
-            plt.ylim(0, y_max)
+            ax.set_ylim(0, y_max)
 
             # array([0, 1, 2, 3, 4])
             xpos = np.arange(len(week))
-            plt.xticks(xpos, week)
-            plt.ylabel("Gram weight or KCAL")
-            plt.title("Calories and macros throughout the week")
-            plt.bar(xpos - 0.1, total_calories, width=0.4, label="Calories")
-            plt.bar(xpos - 0.1, total_protein, width=0.4, label="protein")
-            plt.bar(xpos + 0.2, total_carbs, width=0.2, label="Carbs")
-            plt.bar(xpos + 0.4, total_fat, width=0.2, label="Fat")
-            plt.legend()
+            bars_calories = ax.bar(xpos - 0.1, total_calories, width=0.4, label="Calories")
+            bars_protein = ax.bar(xpos - 0.1, total_protein, width=0.4, label="protein")
+            bars_carbs = ax.bar(xpos + 0.2, total_carbs, width=0.2, label="Carbs")
+            bars_fat = ax.bar(xpos + 0.4, total_fat, width=0.2, label="Fat")
+            ax.set_xticks(xpos)
+            ax.set_xticklabels(date_labels)
+            ax.set_ylabel("Gram weight or KCAL")
+            ax.set_title("Calories and macros throughout the week")
+            ax.legend()
+            
+            # Add text annotations for each bar
+            def add_annotations(bars, values):
+                for bar, value in zip(bars, values):
+                    if value > 0:  # Only annotate if the value is greater than 0
+                        height = bar.get_height()
+                        ax.text(
+                            bar.get_x() + bar.get_width() / 2,
+                            height,
+                            f'{value:.0f}',
+                            ha='center',
+                            va='bottom'
+                        )
 
-            # Save the plot as a PNG image
-            buffer = BytesIO()
-            plt.savefig(buffer, format="png")
-            buffer.seek(0)
-            graph_url = base64.b64encode(buffer.getvalue()).decode()
+            add_annotations(bars_calories, total_calories)
+            add_annotations(bars_protein, total_protein)
+            add_annotations(bars_carbs, total_carbs)
+            add_annotations(bars_fat, total_fat)
+
+            # Animation function
+            def animate(i):
+                for bar, height in zip(bars_calories, total_calories):
+                    bar.set_height(height * i / 100)
+                for bar, height in zip(bars_protein, total_protein):
+                    bar.set_height(height * i / 100)
+                for bar, height in zip(bars_carbs, total_carbs):
+                    bar.set_height(height * i / 100)
+                for bar, height in zip(bars_fat, total_fat):
+                    bar.set_height(height * i / 100)
+
+            # Create animation
+            anim = FuncAnimation(fig, animate, frames=100, interval=20, repeat=False)
+
+            # Generate HTML representation of the animation
+            graph_html = anim.to_jshtml(fps=30, embed_frames=True)
 
         return await render_template(
-            "food-log.html", food_log=food_log, graph_url=graph_url
+            "food-log.html", food_log=food_log, graph_html=graph_html, selected_date=selected_date_str
         )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
