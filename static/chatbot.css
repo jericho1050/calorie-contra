@@ -1,0 +1,176 @@
+/* https://github.com/Peekobot/peekobot */
+/* 🫡 Thanks to this, I am able to build a good UI design for my chatbot */
+:root {
+    --peekobot-height: 69vh;
+    --peekobot-avatar: url("data:image/svg+xml,%3Csvg height='33' viewBox='0 0 32 32' width='33' id='chatbot-svg' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m16 19a6.9908 6.9908 0 0 1 -5.833-3.1287l1.666-1.1074a5.0007 5.0007 0 0 0 8.334 0l1.666 1.1074a6.9908 6.9908 0 0 1 -5.833 3.1287z'/%3E%3Cpath d='m20 8a2 2 0 1 0 2 2 1.9806 1.9806 0 0 0 -2-2z'/%3E%3Cpath d='m12 8a2 2 0 1 0 2 2 1.9806 1.9806 0 0 0 -2-2z'/%3E%3Cpath d='m17.7358 30-1.7358-1 4-7h6a1.9966 1.9966 0 0 0 2-2v-14a1.9966 1.9966 0 0 0 -2-2h-20a1.9966 1.9966 0 0 0 -2 2v14a1.9966 1.9966 0 0 0 2 2h9v2h-9a3.9993 3.9993 0 0 1 -4-4v-14a3.9988 3.9988 0 0 1 4-4h20a3.9988 3.9988 0 0 1 4 4v14a3.9993 3.9993 0 0 1 -4 4h-4.8354z'/%3E%3Cpath d='m0 0h32v32h-32z' fill='none'/%3E%3C/svg%3E");
+}
+
+#chatbot-container {
+    position: fixed; /* Use fixed positioning to keep it in place relative to the viewport */
+    right: 1em; /* Position it 1em from the right edge of the viewport */
+    bottom: 1em; /* Position it 1em from the bottom edge of the viewport */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+#peekobot-container {
+    width: 80vw;
+    max-width: 300px;
+    border: 1px solid hsl(0, 0%, 90%);
+    border-radius: 12px;
+    box-shadow: 2px 2px 5px hsl(0, 0%, 60%);
+    padding: 1rem 1rem 2rem 1rem;
+    height: var(--peekobot-height);
+    position: absolute; /* Position it absolutely within the chatbot container */
+    right: 2em; /* Align it to the right edge of the chatbot container */
+    bottom: 4em; /* Adjust bottom to account for the toggle button */
+}
+
+#peekobot-inner {
+    height: 69%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#peekobot-inner::-webkit-scrollbar { 
+    display: none;  /* Chrome Safari */
+}
+
+.chat-response,
+.chat-ask {
+    opacity: 0;  /* Set to activated to show */
+    transform: translateY(-50%); /* Set to activated to move down */
+    transition: all 0.3s 0.3s;
+    border-radius: 12px;
+    background-color: hsl(0, 5%, 92%);
+    padding: 0.5rem 0.7rem;
+    line-height: 1.4;
+    color: black;
+    width: 80%;
+    margin-bottom: 0.5rem;
+}
+
+.chat-response {
+    margin-left: 26px;
+    position: relative;
+}
+
+.chat-response:before {
+    display: block;
+    content: '';
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    background-image: var(--peekobot-avatar);
+    background-color: #FFF;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    border-radius: 100%;
+}
+
+.chat-ask {
+    background-color: hsl(207, 96%, 55%);
+    margin-right: 0;
+    margin-left: auto;
+    color: hsl(0, 0%, 100%);
+}
+
+.choices {
+    opacity: 0; /* Set to active to show */
+    transform: translateY(-50%); /* Set to activated to move down */
+    transition: all 0.3s 0.3s;
+    transition: opacity 0.3s 0.3s;
+    margin-top: 0.5rem;
+    margin-left: 22px;
+}
+
+.choice {
+    display: inline-block;
+    outline: none;
+    border: 1px solid hsl(0, 0%, 0%);
+    padding: 0.3rem 0.8rem;
+    background-color: hsl(0, 0%, 100%);
+    border-radius: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.choice:disabled {
+    color: hsl(0, 0%, 80%);
+    border-color: hsl(0, 0%, 80%);
+}
+
+.activated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.restart {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    outline: none;
+    font-size: 12px;
+    color: hsl(0, 0%, 50%);
+    box-shadow: none;
+    border: 1px solid hsl(0, 0%, 60%);
+    border-radius: 1rem;
+    background: hsl(0, 0%, 100%);
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+#chatbot-toggle {
+    position: fixed;
+    bottom: 1em;
+    right: 1em;
+    background-color: hsl(0, 0%, 100%);
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 100%;
+    width: 4em;
+    height: 4em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px hsl(0, 0%, 60%);
+}
+
+.chat-input-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 1rem;
+    border-top: 1px solid hsl(0, 0%, 90%);
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0;
+    left: 0;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 0.5rem;
+    resize: vertical; /* Allow vertical resizing */
+
+}
+
+#chat-submit {
+    margin-top: 0.5em;
+}

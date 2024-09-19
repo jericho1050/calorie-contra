@@ -1,6 +1,7 @@
 aiosqlite
 aiohttp
 asyncpg
+google-generativeai
 quart
 quart_flask_patch
 flask_session
