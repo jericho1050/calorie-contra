@@ -22,7 +22,40 @@
     height: var(--peekobot-height);
     position: absolute; /* Position it absolutely within the chatbot container */
     right: 2em; /* Align it to the right edge of the chatbot container */
-    bottom: 4em; /* Adjust bottom to account for the toggle button */
+    bottom: 5.5em; /* Adjust bottom to account for the toggle button */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Start hidden */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Add transition */
+}
+
+#peekobot-container.visible {
+    opacity: 1; /* Show */
+    visibility: visible; /* Show */
+}
+
+.hidden {
+    display: none; /* Use display none to completely hide the element */
+}
+
+#chatbot-toggle {
+    position: fixed;
+    bottom: 1em;
+    right: 1em;
+    background-color: #a2b29f;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 100%;
+    width: 5em;
+    height: 5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px hsl(0, 0%, 60%);
+    transition: transform 0.3s ease; /* Add transition for toggle button */
+}
+
+#chatbot-toggle.active {
+    transform: rotate(45deg); /* Rotate the button when active */
 }
 
 #peekobot-inner {
@@ -138,11 +171,11 @@
     position: fixed;
     bottom: 1em;
     right: 1em;
-    background-color: hsl(0, 0%, 100%);
+    background-color: #a2b29f;
     border: 1px solid hsl(0, 0%, 80%);
     border-radius: 100%;
-    width: 4em;
-    height: 4em;
+    width: 5em;
+    height: 5em;
     display: flex;
     justify-content: center;
     align-items: center;

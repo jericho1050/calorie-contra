@@ -60,7 +60,7 @@
                     d="m17.7358 30-1.7358-1 4-7h6a1.9966 1.9966 0 0 0 2-2v-14a1.9966 1.9966 0 0 0 -2-2h-20a1.9966 1.9966 0 0 0 -2 2v14a1.9966 1.9966 0 0 0 2 2h9v2h-9a3.9993 3.9993 0 0 1 -4-4v-14a3.9988 3.9988 0 0 1 4-4h20a3.9988 3.9988 0 0 1 4 4v14a3.9993 3.9993 0 0 1 -4 4h-4.8354z" />
                 <path d="m0 0h32v32h-32z" fill="none" />
             </svg></button>
-        <div id="peekobot-container" class="hidden">
+        <div id="peekobot-container">
             <div id="peekobot-inner">
                 <div id="peekobot"></div>
             </div>
@@ -256,7 +256,8 @@
 
         document.getElementById('chatbot-toggle').addEventListener('click', function () {
             const container = document.getElementById('peekobot-container');
-            container.classList.toggle('hidden');
+            container.classList.toggle('visible');
+            this.classList.toggle('active');
         });
     </script>
 </body>
