@@ -1,7 +1,16 @@
 import os
 import json
 import quart_flask_patch
-from quart import Quart, flash, redirect, render_template, request, url_for, session, jsonify
+from quart import (
+    Quart,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    session,
+    jsonify,
+)
 import requests
 
 # from flask_caching import Cache
@@ -18,6 +27,7 @@ from helpers import (
     get_nutritional_info,
 )
 import matplotlib
+
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -32,9 +42,14 @@ from sqlalchemy.exc import NoResultFound, IntegrityError
 from database import setup_database, SessionLocal, User, FoodCount
 
 
-load_dotenv() # load the environment variables
-genai.configure(api_key=os.environ["gemini_api_key"]) # configure the API key for generative AI
-model = genai.GenerativeModel("gemini-1.5-flash")
+load_dotenv()  # load the environment variables
+genai.configure(
+    api_key=os.environ["gemini_api_key"]
+)  # configure the API key for generative AI
+model = genai.GenerativeModel(
+    "gemini-1.5-flash",
+    system_instruction="You are a knowledgeable nutritionist specializing in health, fitness, nutrition, and diet. You assist users in tracking calories and macronutrients, using data from various sources, including the USDA FoodData Central (FDC) API, to provide accurate food information. Help users search for foods, log their intake, adjust serving sizes, and offer tailored advice for dietary goals such as weight loss, muscle gain, or maintenance. Your response must be short and concise, and your tone must be motivating. Limit all responses to topics related to health, fitness, nutrition, or diet. If a question is not related to health, fitness, nutrition, or diet, please respond with 'I'm sorry, I can only provide information on health, fitness, nutrition, or diet.'",
+)
 
 
 # Configure application
@@ -89,6 +104,7 @@ async def search():
 
     return await render_template("search_foods.html", query=query, api_key=api_key)
 
+
 @app.route("/api/search_foods", methods=["GET"])
 async def search_foods():
     query = request.args.get("query")
@@ -109,6 +125,7 @@ async def search_foods():
         return jsonify(data)
     except requests.RequestException as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/login", methods=["GET", "POST"])
 async def login():
@@ -378,14 +395,19 @@ async def food_log():
             y_max = max_value + 50
 
             # Increase the figure width here
-            fig, ax = plt.figure(figsize=(10, 6)), plt.gca()  # Adjusts the width and height
+            fig, ax = (
+                plt.figure(figsize=(10, 6)),
+                plt.gca(),
+            )  # Adjusts the width and height
 
             # set the y-axis label limit
             ax.set_ylim(0, y_max)
 
             # array([0, 1, 2, 3, 4])
             xpos = np.arange(len(week))
-            bars_calories = ax.bar(xpos - 0.1, total_calories, width=0.4, label="Calories")
+            bars_calories = ax.bar(
+                xpos - 0.1, total_calories, width=0.4, label="Calories"
+            )
             bars_protein = ax.bar(xpos - 0.1, total_protein, width=0.4, label="protein")
             bars_carbs = ax.bar(xpos + 0.2, total_carbs, width=0.2, label="Carbs")
             bars_fat = ax.bar(xpos + 0.4, total_fat, width=0.2, label="Fat")
@@ -394,7 +416,7 @@ async def food_log():
             ax.set_ylabel("Gram weight or KCAL")
             ax.set_title("Calories and macros throughout the week")
             ax.legend()
-            
+
             # Add text annotations for each bar
             def add_annotations(bars, values):
                 for bar, value in zip(bars, values):
@@ -403,9 +425,9 @@ async def food_log():
                         ax.text(
                             bar.get_x() + bar.get_width() / 2,
                             height,
-                            f'{value:.0f}',
-                            ha='center',
-                            va='bottom'
+                            f"{value:.0f}",
+                            ha="center",
+                            va="bottom",
                         )
 
             add_annotations(bars_calories, total_calories)
@@ -431,9 +453,13 @@ async def food_log():
             graph_html = anim.to_jshtml(fps=30, embed_frames=True)
 
         return await render_template(
-            "food-log.html", food_log=food_log, graph_html=graph_html, selected_date=selected_date_str
+            "food-log.html",
+            food_log=food_log,
+            graph_html=graph_html,
+            selected_date=selected_date_str,
         )
-        
+
+
 @app.route("/generate", methods=["POST"])
 async def generate():
     """Generate a text using the generative AI model"""
@@ -443,8 +469,9 @@ async def generate():
 
     prompt = data["prompt"]
     response = await model.generate_content_async(prompt)
-    
+
     return {"text": response.text}
+
 
 if __name__ == "__main__":
     app.run(debug=True)
