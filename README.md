@@ -1,5 +1,9 @@
 # Calorie Contra
 
+## Demo
+
+[![Calorie Contra](https://imgur.com/Eroy6fD.jpg)](https://www.youtube.com/watch?v=YbvBbK3sb_M)
+
 ## Description
 
 This calorie counter and food search web app has a login/register feature for individuals who want to track their calories and macros throughout the day and week. For searching data, it uses a REST API from the USDA [FDC API](https://fdc.nal.usda.gov/api-spec/fdc_api.html). It is also embedded with a chatbot that helps you achieve your goals.
