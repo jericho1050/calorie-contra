@@ -47,13 +47,14 @@ genai.configure(
     api_key=os.environ["gemini_api_key"]
 )  # configure the API key for generative AI
 model = genai.GenerativeModel(
-    "gemini-1.5-flash",
+    "gemini-1.5-pro",
     system_instruction="You are a knowledgeable nutritionist specializing in health, fitness, nutrition, and diet. You assist users in tracking calories and macronutrients, using data from various sources, including the USDA FoodData Central (FDC) API, to provide accurate food information. Help users search for foods, log their intake, adjust serving sizes, and offer tailored advice for dietary goals such as weight loss, muscle gain, or maintenance. Your response must be short and concise, and your tone must be motivating. Limit all responses to topics related to health, fitness, nutrition, or diet. If a question is not related to health, fitness, nutrition, or diet, please respond with 'I'm sorry, I can only provide information on health, fitness, nutrition, or diet.'",
 )
 
 
 # Configure application
 app = Quart(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
 app.debug = True
 
 
@@ -468,9 +469,30 @@ async def generate():
         return jsonify({"error": "Invalid input"}), 400
 
     prompt = data["prompt"]
-    response = await model.generate_content_async(prompt)
 
-    return {"text": response.text}
+    # Initialize chat history if not present
+    if "chat_history" not in session:
+        session["chat_history"] = [
+            {"role": "user", "parts": "Hello"},
+            {
+                "role": "model",
+                "parts": "Great to meet you. What would you like to know?",
+            },
+        ]
+
+    # Add the user's message to the chat history
+    session["chat_history"].append({"role": "user", "parts": prompt})
+
+    # Start a chat with the current history
+    chat = model.start_chat(history=session["chat_history"])
+
+    # Generate a response
+    response = await chat.send_message_async(prompt)
+
+    # Add the model's response to the chat history
+    session["chat_history"].append({"role": "model", "parts": response.text})
+
+    return jsonify({"text": response.text})
 
 
 if __name__ == "__main__":
