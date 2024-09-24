@@ -1,1 +1,1 @@
-web: hypercorn asgi:app:app
+web: hypercorn asgi:app:app --bind 0.0.0.0:$PORT
