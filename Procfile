@@ -1,0 +1,1 @@
+web: hypercorn app:app
