@@ -1,1 +1,1 @@
-web: hypercorn app:app
+web: hypercorn asgi:app:app
