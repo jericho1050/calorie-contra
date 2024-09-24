@@ -55,8 +55,6 @@ model = genai.GenerativeModel(
 # Configure application
 app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-app.debug = True
-
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False

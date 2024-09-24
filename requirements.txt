@@ -9,7 +9,6 @@ Werkzeug
 requests
 matplotlib
 numpy
-psycopg2
 python-dotenv
 pyt
 sqlalchemy[asyncio]

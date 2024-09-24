@@ -6,7 +6,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Configure SQLAlchemy
-DATABASE_URL = os.getenv("SCHEMATOGO_URL")
+# get the database URL from the environment variable
+uri = os.getenv("SCHEMATOGO_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+    
+# use the correct postgresql driver
+uri = uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+DATABASE_URL = uri
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(
     bind=engine,
