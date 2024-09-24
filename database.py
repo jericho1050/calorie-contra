@@ -1,9 +1,12 @@
+import os
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
+from dotenv import load_dotenv
 
+load_dotenv()
 # Configure SQLAlchemy
-DATABASE_URL = "sqlite+aiosqlite:///user.db"
+DATABASE_URL = os.getenv("SCHEMATOGO_URL")
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(
     bind=engine,
