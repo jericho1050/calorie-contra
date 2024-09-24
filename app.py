@@ -492,6 +492,3 @@ async def generate():
 
     return jsonify({"text": response.text})
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
