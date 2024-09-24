@@ -44,7 +44,7 @@ from database import setup_database, SessionLocal, User, FoodCount
 
 load_dotenv()  # load the environment variables
 genai.configure(
-    api_key=os.environ["gemini_api_key"]
+    api_key=os.environ["GEMINI_API_KEY"]
 )  # configure the API key for generative AI
 model = genai.GenerativeModel(
     "gemini-1.5-flash",
@@ -65,7 +65,7 @@ Session(app)
 
 db_session = scoped_session(SessionLocal)
 
-api_key = os.getenv("api_key")
+api_key = os.getenv("API_KEY")
 
 
 @app.before_serving
