@@ -8,6 +8,10 @@
 
 This calorie counter and food search web app is for individuals who want to track their calories and macros throughout the day and week. For searching data, it uses a REST API from the USDA [FDC API](https://fdc.nal.usda.gov/api-spec/fdc_api.html). It is also embedded with a chatbot that helps you achieve your goals.
 
+## Testimony
+
+It all started as a final project for CS50X and as a first web app project, but then looking back at how it was terribly implemented, I decided to revisit this project and redesgin and refactor the codes and functionality. The project isn't that crazy good, but I'm kind of proud of what I did here, and there's still more room for improvements and more features to implement. Hopefully someday the web app will be useful and be monetized.
+
 ## Usage
 
 1. **Clone this repository**
