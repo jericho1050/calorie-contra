@@ -38,7 +38,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import select, insert, func
-from sqlalchemy.exc import NoResultFound, IntegrityError
+from sqlalchemy.exc import NoResultFound, IntegrityError, SQLAlchemyError
 from database import setup_database, SessionLocal, User, FoodCount
 
 
@@ -160,11 +160,19 @@ async def login():
             # Remember which user has logged in
             session["user_id"] = user.id
 
+            # Commit the transaction
+            await db_session.commit()
+            
             # Redirect user to home page
             return redirect("/home")
 
         except NoResultFound:
+            await db_session.rollback()
             return await apology("invalid username and/or password", 403)
+        
+        except SQLAlchemyError as e:
+            await db_session.rollback()
+            return await apology("database error", 500)
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
